@@ -1,3 +1,17 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import Conversation, Message
+
+
+@admin.register(Conversation)
+class ConversationAdmin(admin.ModelAdmin):
+	list_display = ('id', 'user', 'title', 'updated_at')
+	search_fields = ('title', 'user__username')
+
+
+@admin.register(Message)
+class MessageAdmin(admin.ModelAdmin):
+	list_display = ('id', 'conversation', 'role', 'created_at')
+	list_filter = ('role',)
+	search_fields = ('content',)
+

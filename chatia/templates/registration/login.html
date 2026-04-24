@@ -1,0 +1,15 @@
+{% extends 'chatia/base.html' %}
+
+{% block title %}Entrar | ChatIA{% endblock %}
+
+{% block content %}
+<section class="auth-card">
+    <h1>Iniciar sesión</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="primary" type="submit">Entrar</button>
+    </form>
+    <p class="note">Crea usuarios desde Admin Site para las pruebas.</p>
+</section>
+{% endblock %}

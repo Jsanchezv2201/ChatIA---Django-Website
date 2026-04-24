@@ -6,4 +6,5 @@ app_name = 'chatia'
 
 urlpatterns = [
     path('', views.home, name='home'),
+    path('info/', views.info, name='info'),
 ]

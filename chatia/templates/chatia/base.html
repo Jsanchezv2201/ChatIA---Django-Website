@@ -1,0 +1,75 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ChatIA{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/htmx.org@2.0.4"></script>
+    <link rel="stylesheet" href="{% static 'chatia/style.css' %}">
+</head>
+<body>
+    <header class="topbar">
+        <div class="brand">ChatIA</div>
+        <nav>
+            <a href="{% url 'chatia:home' %}">Chat</a>
+            <a href="{% url 'chatia:info' %}">Info</a>
+            {% if user.is_authenticated %}
+            <form action="{% url 'logout' %}" method="post" class="logout-form">
+                {% csrf_token %}
+                <button type="submit">Salir</button>
+            </form>
+            {% else %}
+            <a href="{% url 'login' %}">Entrar</a>
+            {% endif %}
+        </nav>
+    </header>
+    <main class="shell">
+        {% block content %}{% endblock %}
+    </main>
+    <script>
+        (function () {
+            function scrollMessagesToBottom(smooth) {
+                var box = document.getElementById('messages');
+                if (!box) {
+                    return;
+                }
+                box.scrollTo({
+                    top: box.scrollHeight,
+                    behavior: smooth ? 'smooth' : 'auto'
+                });
+            }
+
+            function getComposer() {
+                return document.getElementById('chat-composer');
+            }
+
+            function setupEnterToSend() {
+                var composer = getComposer();
+                if (!composer) {
+                    return;
+                }
+                var textarea = composer.querySelector('textarea');
+                if (!textarea || textarea.dataset.enterBound === '1') {
+                    return;
+                }
+                textarea.dataset.enterBound = '1';
+                textarea.addEventListener('keydown', function (event) {
+                    if (event.key === 'Enter' && !event.shiftKey) {
+                        event.preventDefault();
+                        composer.requestSubmit();
+                    }
+                });
+            }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                setupEnterToSend();
+                scrollMessagesToBottom(false);
+            });
+        })();
+    </script>
+</body>
+</html>

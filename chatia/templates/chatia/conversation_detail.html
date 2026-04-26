@@ -1,0 +1,42 @@
+{% extends 'chatia/base.html' %}
+
+{% block title %}Conversación | ChatIA{% endblock %}
+
+{% block content %}
+<section>
+    <!-- Titulo de la conversacion actual -->
+    <h1>{{ conversation.title }}</h1>
+
+    {% if error %}
+    <!-- Error de validacion o envio de mensaje -->
+    <p class="error">{{ error }}</p>
+    {% endif %}
+
+    <!-- Historial de mensajes de la conversacion -->
+    <div id="messages">
+        {% for message in conversation.messages.all %}
+        <article>
+            <!-- Muestra "Tu" si el rol es user; en otro caso imprime el rol guardado -->
+            <h3>{% if message.role == 'user' %}Tú{% else %}{{ message.role }}{% endif %}</h3>
+            <!-- linebreaksbr convierte saltos de linea en <br> -->
+            <p>{{ message.content|linebreaksbr }}</p>
+            <small>{{ message.created_at|date:'d/m/Y H:i' }}</small>
+        </article>
+        {% empty %}
+        <!-- Estado vacio cuando aun no hay mensajes -->
+        <p>Aún no hay mensajes en esta conversación.</p>
+        {% endfor %}
+    </div>
+
+    <!-- Formulario para enviar un nuevo mensaje -->
+    <form method="post" action="{% url 'chatia:send_message' conversation.id %}" id="chat-composer">
+        {% csrf_token %}
+        <!-- Campo prompt definido en PromptForm -->
+        {{ form.prompt }}
+        <button class="primary" type="submit">Enviar</button>
+    </form>
+
+    <!-- Navegacion de vuelta al listado principal -->
+    <p><a href="{% url 'chatia:home' %}">Volver al inicio</a></p>
+</section>
+{% endblock %}

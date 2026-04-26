@@ -4,7 +4,30 @@
 
 {% block content %}
 <section>
+    <!-- Presentacion de la pagina principal -->
     <h1>ChatIA</h1>
-    <p>Acceso protegido con sesión de Django.</p>
+    <p>Fase 4: conversaciones persistentes y envío de mensajes.</p>
+
+    <!-- Crea una nueva conversacion para el usuario autenticado -->
+    <form method="post" action="{% url 'chatia:conversation_create' %}">
+        {% csrf_token %}
+        <button class="primary" type="submit">Nueva conversación</button>
+    </form>
+
+    <!-- Listado de conversaciones guardadas -->
+    <h2>Tus conversaciones</h2>
+    <ul>
+        {% for conversation in conversations %}
+        <!-- Cada enlace abre el detalle de una conversacion -->
+        <li>
+            <a href="{% url 'chatia:conversation_detail' conversation.id %}">
+                {{ conversation.title }}
+            </a>
+        </li>
+        {% empty %}
+        <!-- Mensaje mostrado si no hay conversaciones -->
+        <li>No tienes conversaciones todavía.</li>
+        {% endfor %}
+    </ul>
 </section>
 {% endblock %}

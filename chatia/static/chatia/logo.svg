@@ -1,0 +1,92 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="coreGlow" cx="50%" cy="50%">
+      <stop offset="0%" style="stop-color:#a78bfa;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#8b5cf6;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#6366f1;stop-opacity:0.4" />
+    </radialGradient>
+
+    <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#60a5fa;stop-opacity:1">
+        <animate attributeName="stop-color" values="#60a5fa;#818cf8;#60a5fa" dur="8s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="50%" style="stop-color:#a78bfa;stop-opacity:1">
+        <animate attributeName="stop-color" values="#a78bfa;#c084fc;#a78bfa" dur="8s" repeatCount="indefinite"/>
+      </stop>
+      <stop offset="100%" style="stop-color:#e879f9;stop-opacity:1">
+        <animate attributeName="stop-color" values="#e879f9;#f0abfc;#e879f9" dur="8s" repeatCount="indefinite"/>
+      </stop>
+    </linearGradient>
+
+    <linearGradient id="neuralGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+    </linearGradient>
+
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#f59e0b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ef4444;stop-opacity:1" />
+    </linearGradient>
+
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <filter id="sharpShadow">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <g opacity="0.15">
+    <circle cx="100" cy="100" r="85" fill="none" stroke="url(#primaryGrad)" stroke-width="0.5" stroke-dasharray="4 4">
+      <animateTransform attributeName="transform" type="rotate" from="0 100 100" to="360 100 100" dur="30s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="100" cy="100" r="90" fill="none" stroke="url(#neuralGrad)" stroke-width="0.5" stroke-dasharray="8 4">
+      <animateTransform attributeName="transform" type="rotate" from="360 100 100" to="0 100 100" dur="40s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <circle cx="100" cy="100" r="75" fill="url(#coreGlow)" opacity="0.95"/>
+
+  <g opacity="0.2" stroke="url(#neuralGrad)" stroke-width="1" fill="none">
+    <path d="M 50 60 Q 100 50, 150 60" />
+    <path d="M 50 100 L 150 100" />
+    <path d="M 50 140 Q 100 150, 150 140" />
+  </g>
+
+  <g filter="url(#sharpShadow)">
+    <path d="M 50 60 L 50 105 C 50 112 55 117 62 117 L 82 117 L 82 132 L 98 117 L 138 117 C 145 117 150 112 150 105 L 150 60 C 150 53 145 48 138 48 L 62 48 C 55 48 50 53 50 60 Z" fill="white"/>
+
+    <path d="M 50 60 L 50 105 C 50 112 55 117 62 117 L 82 117 L 82 132 L 98 117 L 138 117 C 145 117 150 112 150 105 L 150 60 C 150 53 145 48 138 48 L 62 48 C 55 48 50 53 50 60 Z" fill="none" stroke="url(#primaryGrad)" stroke-width="1.5" opacity="0.3"/>
+
+    <circle cx="80" cy="75" r="5" fill="url(#primaryGrad)">
+      <animate attributeName="opacity" values="1;0.3;1" dur="1.5s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="75;72;75" dur="1.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="100" cy="75" r="5" fill="url(#primaryGrad)">
+      <animate attributeName="opacity" values="0.3;1;0.3" dur="1.5s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="75;72;75" dur="1.5s" begin="0.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="120" cy="75" r="5" fill="url(#primaryGrad)">
+      <animate attributeName="opacity" values="1;0.3;1" dur="1.5s" repeatCount="indefinite"/>
+      <animate attributeName="cy" values="75;72;75" dur="1.5s" begin="1s" repeatCount="indefinite"/>
+    </circle>
+
+    <rect x="65" y="92" width="70" height="4" rx="2" fill="url(#primaryGrad)" opacity="0.7"/>
+    <rect x="65" y="102" width="50" height="4" rx="2" fill="url(#primaryGrad)" opacity="0.5"/>
+  </g>
+
+  <circle cx="160" cy="100" r="2.5" fill="url(#accentGrad)" opacity="0.6" filter="url(#glow)">
+    <animate attributeName="opacity" values="0.2;0.8;0.2" dur="10s" repeatCount="indefinite"/>
+    <animateTransform attributeName="transform" type="rotate" from="0 100 100" to="360 100 100" dur="10s" repeatCount="indefinite"/>
+  </circle>
+
+  <circle cx="155" cy="50" r="2" fill="white">
+    <animate attributeName="opacity" values="0;1;0" dur="6s" repeatCount="indefinite"/>
+  </circle>
+</svg>

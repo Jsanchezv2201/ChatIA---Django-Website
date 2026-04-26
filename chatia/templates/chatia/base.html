@@ -2,9 +2,13 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <!-- Metadatos base para codificacion, adaptacion movil y titulo editable por plantilla hija -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}ChatIA{% endblock %}</title>
+
+    <!-- Recursos globales: icono, tipografias, HTMX y estilos -->
+    <link rel="icon" type="image/svg+xml" href="{% static 'chatia/logo.svg' %}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
@@ -12,12 +16,14 @@
     <link rel="stylesheet" href="{% static 'chatia/style.css' %}">
 </head>
 <body>
+    <!-- Cabecera comun con navegacion y acciones de sesion -->
     <header class="topbar">
         <div class="brand">ChatIA</div>
         <nav>
             <a href="{% url 'chatia:home' %}">Chat</a>
             <a href="{% url 'chatia:info' %}">Info</a>
             {% if user.is_authenticated %}
+            <!-- Cierre de sesion por POST para incluir token CSRF -->
             <form action="{% url 'logout' %}" method="post" class="logout-form">
                 {% csrf_token %}
                 <button type="submit">Salir</button>
@@ -27,11 +33,16 @@
             {% endif %}
         </nav>
     </header>
+
+    <!-- Zona principal donde cada plantilla hija inserta su contenido -->
     <main class="shell">
         {% block content %}{% endblock %}
     </main>
+
+    <!-- Script comun del chat: autoscroll de mensajes y envio con Enter -->
     <script>
         (function () {
+            // Baja el panel al final para ver el ultimo mensaje.
             function scrollMessagesToBottom(smooth) {
                 var box = document.getElementById('messages');
                 if (!box) {
@@ -47,6 +58,7 @@
                 return document.getElementById('chat-composer');
             }
 
+            // Permite enviar con Enter y mantener Shift+Enter para salto de linea.
             function setupEnterToSend() {
                 var composer = getComposer();
                 if (!composer) {
@@ -65,6 +77,7 @@
                 });
             }
 
+            // Inicializacion al cargar la pagina.
             document.addEventListener('DOMContentLoaded', function () {
                 setupEnterToSend();
                 scrollMessagesToBottom(false);

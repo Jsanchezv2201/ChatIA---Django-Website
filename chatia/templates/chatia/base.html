@@ -18,7 +18,10 @@
 <body>
     <!-- Cabecera comun con navegacion y acciones de sesion -->
     <header class="topbar">
-        <div class="brand">ChatIA</div>
+        <a class="brand" href="{% url 'chatia:home' %}">
+            <img class="brand-logo" src="{% static 'chatia/logo.svg' %}" alt="Logo de ChatIA">
+            <span>ChatIA</span>
+        </a>
         <nav>
             <a href="{% url 'chatia:home' %}">Chat</a>
             <a href="{% url 'chatia:info' %}">Info</a>

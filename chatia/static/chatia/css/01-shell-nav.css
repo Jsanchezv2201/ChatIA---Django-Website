@@ -17,6 +17,7 @@
 
 /* Nombre de la aplicacion. */
 .brand {
+    text-decoration: none;
     font-size: 1.12rem;
     font-weight: 800;
     color: var(--text);
@@ -25,14 +26,12 @@
     gap: 0.55rem;
 }
 
-/* Pequena linea decorativa a la izquierda del nombre. */
-.brand::before {
-    content: '';
-    display: inline-block;
-    width: 3px;
-    height: 18px;
-    border-radius: 2px;
-    background: linear-gradient(180deg, var(--brand), #a78bfa);
+/* Logo pequeño en la cabecera. */
+.brand-logo {
+    width: 2.15rem;
+    height: 2.15rem;
+    display: block;
+    filter: drop-shadow(0 0 10px rgba(79,143,255,0.18));
 }
 
 /* Enlaces y botones de la cabecera. */

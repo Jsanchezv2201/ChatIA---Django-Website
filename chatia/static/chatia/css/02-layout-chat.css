@@ -1,0 +1,199 @@
+/* Grid de dos columnas: lista de conversaciones y panel de chat. */
+.layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 1.1rem;
+    align-items: start;
+}
+
+/* Tarjetas principales reutilizadas en la app. */
+.sidebar,
+.chat-panel,
+.auth-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--r-xl);
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0,0,0,0.35);
+    backdrop-filter: blur(20px) saturate(1.3);
+    -webkit-backdrop-filter: blur(20px) saturate(1.3);
+    overflow: hidden;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+/* Padding comun para la lista lateral y el panel del chat. */
+.sidebar,
+.chat-panel {
+    padding: 1.4rem;
+}
+
+/* Titulo pequeno de la columna lateral. */
+.sidebar h2 {
+    margin: 0 0 1rem;
+    font-family: "Syne", sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--text-faint);
+}
+
+/* Lista de conversaciones guardadas. */
+.sidebar ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.35rem;
+}
+
+/* Cada enlace de conversacion dentro de la barra lateral. */
+.sidebar a {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--text-dim);
+    text-decoration: none;
+    border: 1px solid transparent;
+    border-radius: var(--r-md);
+    padding: 0.68rem 0.88rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Conversacion activa o item bajo el cursor. */
+.sidebar a.active,
+.sidebar a:hover {
+    color: var(--text);
+    border-color: var(--line-strong);
+    background: var(--surface-hi);
+}
+
+/* Resalta la conversacion seleccionada. */
+.sidebar a.active {
+    color: var(--brand);
+    border-color: rgba(79,143,255,0.25);
+    background: rgba(79,143,255,0.08);
+}
+
+/* Boton principal de acciones como crear o enviar. */
+.primary {
+    width: 100%;
+    border: 0;
+    border-radius: var(--r-md);
+    padding: 0.72rem 1rem;
+    color: #fff;
+    font-family: "Syne", sans-serif;
+    font-size: 0.92rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-strong) 100%);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform var(--transition), box-shadow var(--transition), filter var(--transition);
+    box-shadow: 0 4px 20px rgba(79,143,255,0.28), inset 0 1px 0 rgba(255,255,255,0.18);
+}
+
+/* Elevacion visual del boton al pasar el raton. */
+.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(79,143,255,0.38), inset 0 1px 0 rgba(255,255,255,0.18);
+    filter: brightness(1.06);
+}
+
+.primary:active { transform: translateY(0); }
+
+/* Panel central donde vive el chat. */
+.chat-panel {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    gap: 1rem;
+}
+
+/* Caja con scroll donde se pintan los mensajes. */
+.messages-box {
+    min-height: 52vh;
+    max-height: 64vh;
+    overflow-y: auto;
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    padding: 1.1rem;
+    background: rgba(5, 8, 16, 0.55);
+    display: grid;
+    gap: 0.85rem;
+    scroll-behavior: smooth;
+}
+
+/* Scrollbar discreta para no distraer del contenido. */
+.messages-box::-webkit-scrollbar { width: 4px; }
+.messages-box::-webkit-scrollbar-track { background: transparent; }
+.messages-box::-webkit-scrollbar-thumb {
+    background: var(--line-strong);
+    border-radius: 4px;
+}
+
+/* Tarjeta individual de cada mensaje. */
+.bubble {
+    border: 1px solid var(--line);
+    border-radius: var(--r-lg);
+    padding: 1rem 1.1rem;
+    animation: bubbleIn 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Animacion suave cuando entra un mensaje nuevo. */
+@keyframes bubbleIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Mensajes del usuario alineados a la derecha. */
+.bubble.user {
+    margin-left: 12%;
+    border-color: rgba(79, 143, 255, 0.2);
+    background: linear-gradient(145deg, rgba(79,143,255,0.1) 0%, rgba(46,109,255,0.05) 100%);
+}
+
+/* Respuestas del asistente con estilo mas neutro. */
+.bubble.assistant {
+    margin-right: 10%;
+    border-color: var(--line);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+/* Mensajes de sistema o avisos internos. */
+.bubble.system {
+    border-color: rgba(167,139,250,0.18);
+    background: rgba(167,139,250,0.05);
+}
+
+/* Encabezado corto de cada mensaje. */
+.bubble h4 {
+    margin: 0 0 0.5rem;
+    font-family: "Syne", sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-faint);
+}
+
+/* Color diferenciado para quien escribe el mensaje. */
+.bubble.user h4 { color: rgba(79,143,255,0.7); }
+.bubble.system h4 { color: rgba(167,139,250,0.7); }
+
+/* Texto del mensaje: conserva saltos de linea. */
+.bubble p {
+    margin: 0 0 0.45rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    font-size: 0.94rem;
+}
+
+/* Marca de fecha y hora. */
+.bubble small {
+    color: var(--text-faint);
+    font-size: 0.78rem;
+}

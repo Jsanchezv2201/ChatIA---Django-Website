@@ -1,0 +1,189 @@
+/* Formulario del chat: textarea + boton. */
+.composer {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.7rem;
+    align-items: end;
+}
+
+/* Inputs reutilizados en chat y login. */
+.composer textarea,
+.auth-card input,
+.auth-card textarea,
+.auth-card select {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    margin: 0;
+    padding: 0.78rem 0.95rem;
+    color: var(--text);
+    background: rgba(5, 8, 16, 0.6);
+    font-family: "DM Sans", sans-serif;
+    font-size: 0.92rem;
+    transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+/* Texto de ayuda dentro de inputs y textarea. */
+.composer textarea::placeholder,
+.auth-card input::placeholder,
+.auth-card textarea::placeholder { color: var(--text-faint); }
+
+/* Estado de foco para facilitar lectura y accesibilidad. */
+.composer textarea:focus,
+.auth-card input:focus,
+.auth-card textarea:focus,
+.auth-card select:focus {
+    outline: none;
+    border-color: rgba(79,143,255,0.45);
+    background: rgba(10, 14, 26, 0.7);
+    box-shadow: 0 0 0 3px rgba(79,143,255,0.1), 0 0 20px rgba(79,143,255,0.06);
+}
+
+/* Boton de enviar mas compacto que el boton general. */
+.composer .primary {
+    width: 130px;
+    height: 46px;
+}
+
+/* Bloquea el boton mientras se esta generando la respuesta. */
+.composer .primary:disabled {
+    cursor: not-allowed;
+    filter: grayscale(0.5);
+    opacity: 0.55;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Zona inferior con ayuda y estado de carga. */
+.composer-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+/* Tarjeta de login y de informacion. */
+.auth-card {
+    max-width: 680px;
+    margin: 3.5rem auto;
+    padding: 2.2rem 2.4rem;
+}
+
+/* Titulo principal dentro de una tarjeta. */
+.auth-card h1 {
+    margin-top: 0;
+    font-size: 1.8rem;
+}
+
+/* Subrayado decorativo bajo el titulo. */
+.auth-card h1::after {
+    content: '';
+    display: block;
+    height: 2px;
+    width: 48px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--brand), #a78bfa);
+    margin-top: 0.7rem;
+}
+
+/* Mensajes de error visibles en rojo. */
+.error {
+    color: var(--danger);
+    font-size: 0.88rem;
+    font-weight: 500;
+}
+
+/* Texto secundario o de ayuda. */
+.note {
+    color: var(--text-faint);
+    font-size: 0.88rem;
+}
+
+/* Indicador de que el modelo esta respondiendo. */
+.loading-indicator {
+    display: none;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.46rem 0.9rem 0.46rem 0.65rem;
+    border: 1px solid var(--line-strong);
+    background: rgba(15, 20, 36, 0.85);
+    border-radius: 999px;
+    color: var(--text-dim);
+    font-size: 0.82rem;
+    font-weight: 500;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3), 0 0 0 1px rgba(79,143,255,0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    animation: fadeUp 0.3s ease both;
+}
+
+/* Hace visible el indicador de carga cuando se activa. */
+.loading-indicator.visible { display: inline-flex; }
+
+/* Entrada animada del aviso de carga. */
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Circulo giratorio de carga. */
+.loading-indicator p { margin: 0; }
+
+/* Circulo giratorio de carga. */
+.spinner {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    border: 2px solid rgba(79,143,255,0.15);
+    border-top: 2px solid var(--brand);
+    border-radius: 50%;
+    animation: spin 0.75s linear infinite;
+}
+
+/* Puntos animados del estado "generando respuesta". */
+.dots {
+    display: inline-block;
+    animation: pulse 1.6s ease-in-out infinite;
+}
+
+/* Cursor animado al final de la respuesta en streaming. */
+.bubble.streaming p::after {
+    content: '';
+    display: inline-block;
+    width: 0.46em;
+    height: 1em;
+    margin-left: 0.18em;
+    vertical-align: -0.12em;
+    background: rgba(79, 143, 255, 0.85);
+    animation: pulse 1s ease-in-out infinite;
+}
+
+/* Rotacion del spinner. */
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Pulso ligero para puntos y cursor. */
+@keyframes pulse {
+    0%, 100% { opacity: 0.35; }
+    50% { opacity: 1; }
+}
+
+/* Adaptacion para pantallas medianas y tablet. */
+@media (max-width: 980px) {
+    .layout { grid-template-columns: 1fr; }
+    .messages-box { min-height: 42vh; }
+    .bubble.user,
+    .bubble.assistant { margin-left: 0; margin-right: 0; }
+}
+
+/* Adaptacion para movil. */
+@media (max-width: 640px) {
+    .topbar { flex-wrap: wrap; gap: 0.6rem; }
+    .auth-card { padding: 1.4rem 1.2rem; margin: 1.5rem auto; }
+    .composer { grid-template-columns: 1fr; }
+    .composer .primary { width: 100%; }
+    .composer-meta { flex-direction: column; align-items: flex-start; }
+}

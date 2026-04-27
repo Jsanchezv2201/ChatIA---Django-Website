@@ -1,0 +1,76 @@
+/* Barra superior fija con navegacion y acceso a sesion. */
+.topbar {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.85rem 1.5rem;
+    border-bottom: 1px solid var(--line);
+    backdrop-filter: blur(24px) saturate(1.4);
+    -webkit-backdrop-filter: blur(24px) saturate(1.4);
+    background: rgba(8, 12, 20, 0.78);
+    box-shadow: 0 1px 0 var(--line), 0 4px 32px rgba(0,0,0,0.3);
+}
+
+/* Nombre de la aplicacion. */
+.brand {
+    font-size: 1.12rem;
+    font-weight: 800;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+}
+
+/* Pequena linea decorativa a la izquierda del nombre. */
+.brand::before {
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 18px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, var(--brand), #a78bfa);
+}
+
+/* Enlaces y botones de la cabecera. */
+nav {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+/* Boton de logout con aspecto de pastilla. */
+nav a,
+.logout-form button {
+    border: 1px solid transparent;
+    color: var(--text-dim);
+    text-decoration: none;
+    background: transparent;
+    cursor: pointer;
+    font-family: "DM Sans", sans-serif;
+    font-size: 0.88rem;
+    font-weight: 500;
+    padding: 0.44rem 0.82rem;
+    border-radius: 999px;
+    transition: color var(--transition), background var(--transition), border-color var(--transition);
+}
+
+/* Estado al pasar el raton por los elementos de navegacion. */
+nav a:hover,
+.logout-form button:hover {
+    color: var(--text);
+    border-color: var(--line-strong);
+    background: var(--surface-hi);
+}
+
+/* Contenedor principal de la pagina. */
+.shell {
+    position: relative;
+    z-index: 1;
+    max-width: 1280px;
+    margin: 1.8rem auto;
+    padding: 0 1.2rem 3rem;
+}

@@ -4,12 +4,16 @@
 
 {% block content %}
 <section class="auth-card">
+    <!-- Formulario de autenticacion de Django -->
     <h1>Iniciar sesión</h1>
     <form method="post">
+        <!-- Token CSRF obligatorio en formularios POST -->
         {% csrf_token %}
+        <!-- Renderizado automatico del formulario de login -->
         {{ form.as_p }}
         <button class="primary" type="submit">Entrar</button>
     </form>
+    <!-- Nota para entorno de practicas -->
     <p class="note">Crea usuarios desde Admin Site para las pruebas.</p>
 </section>
 {% endblock %}

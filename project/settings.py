@@ -17,6 +17,30 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+def load_local_env(path):
+    """Load KEY=VALUE pairs from a local .env file into os.environ."""
+    if not path.exists():
+        return
+    for raw_line in path.read_text(encoding='utf-8').splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith('#') or '=' not in line:
+            continue
+        key, value = line.split('=', 1)
+        os.environ.setdefault(key.strip(), value.strip())
+
+
+def env_first(*names, default=''):
+    """Return the first non-empty environment variable among provided names."""
+    for name in names:
+        value = os.getenv(name, '').strip()
+        if value:
+            return value
+    return default
+
+
+load_local_env(BASE_DIR / '.env')
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
@@ -122,9 +146,9 @@ STATIC_URL = 'static/'
 LOGIN_REDIRECT_URL = 'chatia:home'
 LOGOUT_REDIRECT_URL = 'login'
 
-LLM_BASE_URL = os.getenv('LLM_BASE_URL', 'https://integrate.api.nvidia.com/v1')
-LLM_API_KEY = os.getenv('LLM_API_KEY', '')
-LLM_MODEL = os.getenv('LLM_MODEL', 'meta/llama-3.1-8b-instruct')
+LLM_BASE_URL = env_first('LLM_BASE_URL', default='https://integrate.api.nvidia.com/v1')
+LLM_API_KEY = env_first('LLM_API_KEY', 'OPENAI_API_KEY', 'NVIDIA_API_KEY')
+LLM_MODEL = env_first('LLM_MODEL', default='meta/llama-3.1-8b-instruct')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -120,6 +121,10 @@ STATIC_URL = 'static/'
 
 LOGIN_REDIRECT_URL = 'chatia:home'
 LOGOUT_REDIRECT_URL = 'login'
+
+LLM_BASE_URL = os.getenv('LLM_BASE_URL', 'https://integrate.api.nvidia.com/v1')
+LLM_API_KEY = os.getenv('LLM_API_KEY', '')
+LLM_MODEL = os.getenv('LLM_MODEL', 'meta/llama-3.1-8b-instruct')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

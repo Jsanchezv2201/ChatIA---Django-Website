@@ -1,0 +1,15 @@
+<div id="messages" class="messages-box">
+    {% if error %}
+    <p class="error">{{ error }}</p>
+    {% endif %}
+
+    {% for message in conversation.messages.all %}
+    <article class="bubble {{ message.role }}">
+        <h4>{% if message.role == 'user' %}Tu{% elif message.role == 'assistant' %}ChatIA{% else %}Sistema{% endif %}</h4>
+        <p>{{ message.content|linebreaksbr }}</p>
+        <small>{{ message.created_at|date:'d/m/Y H:i' }}</small>
+    </article>
+    {% empty %}
+    <p>Empieza la conversacion enviando tu primera pregunta.</p>
+    {% endfor %}
+</div>

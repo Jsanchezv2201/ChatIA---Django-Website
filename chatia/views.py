@@ -1,9 +1,15 @@
+import json
+
 from django.contrib.auth.decorators import login_required
+from django.http import StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
 from django.views.decorators.http import require_GET, require_POST
 
 from .forms import PromptForm
 from .models import Conversation, Message
+from .services import ask_llm
+from .services import ask_llm_stream
 
 
 @login_required
@@ -57,7 +63,67 @@ def send_message(request, conversation_id):
 		conversation.title = user_text[:80]
 		conversation.save(update_fields=['title', 'updated_at'])
 
+	assistant_text = ask_llm(conversation)
+	Message.objects.create(
+		conversation=conversation,
+		role=Message.ROLE_ASSISTANT,
+		content=assistant_text,
+	)
+
 	return redirect('chatia:conversation_detail', conversation_id=conversation.id)
+
+
+@login_required
+@require_POST
+def send_message_stream(request, conversation_id):
+	conversation = get_object_or_404(Conversation, id=conversation_id, user=request.user)
+	form = PromptForm(request.POST)
+	if not form.is_valid():
+		return StreamingHttpResponse(
+			'event: error\ndata: {"message":"El mensaje no es valido."}\n\n',
+			content_type='text/event-stream',
+			status=400,
+		)
+
+	user_text = form.cleaned_data['prompt'].strip()
+	Message.objects.create(
+		conversation=conversation,
+		role=Message.ROLE_USER,
+		content=user_text,
+	)
+
+	if conversation.title == 'Nueva conversacion' and user_text:
+		conversation.title = user_text[:80]
+		conversation.save(update_fields=['title', 'updated_at'])
+
+	def event_stream():
+		assistant_chunks = []
+		try:
+			for token in ask_llm_stream(conversation):
+				assistant_chunks.append(token)
+				payload = json.dumps({'token': token}, ensure_ascii=False)
+				yield f'event: token\ndata: {payload}\n\n'
+			assistant_text = ''.join(assistant_chunks).strip() or 'El modelo no devolvio contenido.'
+		except Exception as exc:
+			assistant_text = ask_llm(conversation)
+			if assistant_text.startswith('Error ') or assistant_text.startswith('No se pudo'):
+				payload = json.dumps({'message': assistant_text}, ensure_ascii=False)
+				yield f'event: error\ndata: {payload}\n\n'
+
+		Message.objects.create(
+			conversation=conversation,
+			role=Message.ROLE_ASSISTANT,
+			content=assistant_text,
+		)
+
+		html = render_to_string('chatia/_messages.html', {'conversation': conversation}, request=request)
+		payload = json.dumps({'html': html}, ensure_ascii=False)
+		yield f'event: done\ndata: {payload}\n\n'
+
+	response = StreamingHttpResponse(event_stream(), content_type='text/event-stream')
+	response['Cache-Control'] = 'no-cache'
+	response['X-Accel-Buffering'] = 'no'
+	return response
 
 
 @login_required

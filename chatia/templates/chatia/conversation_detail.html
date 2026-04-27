@@ -3,40 +3,187 @@
 {% block title %}Conversación | ChatIA{% endblock %}
 
 {% block content %}
-<section>
-    <!-- Titulo de la conversacion actual -->
-    <h1>{{ conversation.title }}</h1>
+<section class="layout">
+    <aside class="sidebar">
+        <h2>Conversaciones</h2>
+        <form method="post" action="{% url 'chatia:conversation_create' %}">
+            {% csrf_token %}
+            <button class="primary" type="submit">+ Nueva conversacion</button>
+        </form>
+        <ul>
+            {% for item in conversations %}
+            <li>
+                <a href="{% url 'chatia:conversation_detail' item.id %}" class="{% if item.id == conversation.id %}active{% endif %}">
+                    {{ item.title }}
+                </a>
+            </li>
+            {% empty %}
+            <li>No hay conversaciones aun.</li>
+            {% endfor %}
+        </ul>
+    </aside>
 
-    {% if error %}
-    <!-- Error de validacion o envio de mensaje -->
-    <p class="error">{{ error }}</p>
-    {% endif %}
+    <section class="chat-panel">
+        <header>
+            <h2>Conversacion activa</h2>
+            <p class="note">Respuesta dinamica con streaming y backend Django.</p>
+        </header>
 
-    <!-- Historial de mensajes de la conversacion -->
-    <div id="messages">
-        {% for message in conversation.messages.all %}
-        <article>
-            <!-- Muestra "Tu" si el rol es user; en otro caso imprime el rol guardado -->
-            <h3>{% if message.role == 'user' %}Tú{% else %}{{ message.role }}{% endif %}</h3>
-            <!-- linebreaksbr convierte saltos de linea en <br> -->
-            <p>{{ message.content|linebreaksbr }}</p>
-            <small>{{ message.created_at|date:'d/m/Y H:i' }}</small>
-        </article>
-        {% empty %}
-        <!-- Estado vacio cuando aun no hay mensajes -->
-        <p>Aún no hay mensajes en esta conversación.</p>
-        {% endfor %}
-    </div>
+        {% include 'chatia/_messages.html' %}
 
-    <!-- Formulario para enviar un nuevo mensaje -->
-    <form method="post" action="{% url 'chatia:send_message' conversation.id %}" id="chat-composer">
-        {% csrf_token %}
-        <!-- Campo prompt definido en PromptForm -->
-        {{ form.prompt }}
-        <button class="primary" type="submit">Enviar</button>
-    </form>
+        <form
+            method="post"
+            action="{% url 'chatia:send_message' conversation.id %}"
+            data-stream-url="{% url 'chatia:send_message_stream' conversation.id %}"
+            class="composer"
+            id="chat-composer"
+        >
+            {% csrf_token %}
+            {{ form.prompt }}
+            <button class="primary" type="submit">Enviar</button>
+        </form>
 
-    <!-- Navegacion de vuelta al listado principal -->
-    <p><a href="{% url 'chatia:home' %}">Volver al inicio</a></p>
+        <div class="composer-meta">
+            <p class="note">Enter para enviar · Shift+Enter para nueva linea.</p>
+            <div id="loading" class="loading-indicator" aria-live="polite">
+                <div class="spinner"></div>
+                <p>Generando respuesta<span class="dots">...</span></p>
+            </div>
+        </div>
+    </section>
 </section>
+
+<script>
+    (function () {
+        function scrollMessagesToBottom(smooth) {
+            var box = document.getElementById('messages');
+            if (!box) return;
+            box.scrollTo({ top: box.scrollHeight, behavior: smooth ? 'smooth' : 'auto' });
+        }
+
+        function createBubble(role, title, content) {
+            var article = document.createElement('article');
+            article.className = 'bubble ' + role + (role === 'assistant' ? ' streaming' : '');
+            var h4 = document.createElement('h4');
+            h4.textContent = title;
+            var p = document.createElement('p');
+            p.textContent = content || '';
+            article.appendChild(h4);
+            article.appendChild(p);
+            return { article: article, paragraph: p };
+        }
+
+        async function streamReply(form) {
+            var streamUrl = form.dataset.streamUrl;
+            var messages = document.getElementById('messages');
+            var loading = document.getElementById('loading');
+            var textarea = form.querySelector('textarea');
+            var submitButton = form.querySelector('button[type="submit"]');
+            var prompt = (textarea && textarea.value ? textarea.value : '').trim();
+            if (!prompt || !messages || !streamUrl) return;
+
+            form.classList.add('is-loading');
+            loading.classList.add('visible');
+            if (submitButton) {
+                submitButton.disabled = true;
+                submitButton.dataset.originalText = submitButton.textContent;
+                submitButton.textContent = 'Enviando...';
+            }
+
+            var userBubble = createBubble('user', 'Tu', prompt);
+            var assistantBubble = createBubble('assistant', 'ChatIA', '');
+            messages.appendChild(userBubble.article);
+            messages.appendChild(assistantBubble.article);
+            scrollMessagesToBottom(true);
+
+            var formData = new FormData(form);
+            var decoder = new TextDecoder('utf-8');
+            var buffer = '';
+
+            try {
+                var response = await fetch(streamUrl, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'Accept': 'text/event-stream' },
+                });
+
+                if (!response.ok || !response.body) {
+                    throw new Error('HTTP ' + response.status);
+                }
+
+                var reader = response.body.getReader();
+                while (true) {
+                    var result = await reader.read();
+                    if (result.done) break;
+                    buffer += decoder.decode(result.value, { stream: true });
+                    var events = buffer.split('\n\n');
+                    buffer = events.pop() || '';
+
+                    events.forEach(function (eventBlock) {
+                        var eventName = 'message';
+                        var dataText = '';
+                        eventBlock.split('\n').forEach(function (line) {
+                            if (line.startsWith('event:')) {
+                                eventName = line.slice(6).trim();
+                            } else if (line.startsWith('data:')) {
+                                dataText += line.slice(5).trim();
+                            }
+                        });
+
+                        if (!dataText) return;
+                        var payload;
+                        try {
+                            payload = JSON.parse(dataText);
+                        } catch (e) {
+                            payload = {};
+                        }
+
+                        if (eventName === 'token' && payload.token) {
+                            assistantBubble.paragraph.textContent += payload.token;
+                            scrollMessagesToBottom(true);
+                        }
+
+                        if (eventName === 'error' && payload.message) {
+                            assistantBubble.paragraph.textContent = payload.message;
+                            assistantBubble.article.classList.remove('streaming');
+                            scrollMessagesToBottom(true);
+                        }
+
+                        if (eventName === 'done' && payload.html) {
+                            var wrapper = document.createElement('div');
+                            wrapper.innerHTML = payload.html.trim();
+                            var newMessages = wrapper.firstElementChild;
+                            if (newMessages && newMessages.id === 'messages') {
+                                messages.replaceWith(newMessages);
+                            }
+                            scrollMessagesToBottom(true);
+                        }
+                    });
+                }
+            } catch (error) {
+                assistantBubble.paragraph.textContent = 'Error de streaming: ' + error.message;
+                assistantBubble.article.classList.remove('streaming');
+                scrollMessagesToBottom(true);
+            } finally {
+                if (textarea) textarea.value = '';
+                form.classList.remove('is-loading');
+                loading.classList.remove('visible');
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.textContent = submitButton.dataset.originalText || 'Enviar';
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var form = document.getElementById('chat-composer');
+            if (!form) return;
+
+            form.addEventListener('submit', function (event) {
+                event.preventDefault();
+                streamReply(form);
+            });
+        });
+    })();
+</script>
 {% endblock %}

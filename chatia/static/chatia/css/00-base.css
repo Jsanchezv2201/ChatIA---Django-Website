@@ -2,18 +2,18 @@
 
 /* Colores, radios y tiempos reutilizados en toda la interfaz. */
 :root {
-    --bg: #080c14;
-    --bg-2: #0d1120;
-    --surface: rgba(15, 20, 36, 0.72);
-    --surface-hi: rgba(255, 255, 255, 0.04);
-    --line: rgba(255, 255, 255, 0.07);
-    --line-strong: rgba(255, 255, 255, 0.13);
-    --text: #e8edf8;
-    --text-dim: #7a8aaa;
-    --text-faint: #3d4d6a;
-    --brand: #4f8fff;
-    --brand-strong: #2e6dff;
-    --danger: #f87171;
+    --bg: #f4f7fb;
+    --bg-2: #eaf0f8;
+    --surface: rgba(255, 255, 255, 0.88);
+    --surface-hi: rgba(79, 143, 255, 0.07);
+    --line: rgba(33, 47, 69, 0.08);
+    --line-strong: rgba(33, 47, 69, 0.15);
+    --text: #132238;
+    --text-dim: #52657f;
+    --text-faint: #7b8aa1;
+    --brand: #2563eb;
+    --brand-strong: #1d4ed8;
+    --danger: #dc2626;
 
     --r-md: 16px;
     --r-lg: 22px;
@@ -26,15 +26,15 @@
 *, *::before, *::after { box-sizing: border-box; }
 html, body { margin: 0; min-height: 100%; }
 
-/* Fondo general de la aplicacion con degradados y atmosfera oscura. */
+/* Fondo general de la aplicacion con degradados suaves y atmosfera clara. */
 body {
     font-family: "DM Sans", system-ui, sans-serif;
     color: var(--text);
     background-color: var(--bg);
     background-image:
-        radial-gradient(ellipse 80% 50% at 10% -10%, rgba(79,143,255,0.12) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 40% at 95% 5%, rgba(167,139,250,0.08) 0%, transparent 55%),
-        radial-gradient(ellipse 50% 60% at 80% 100%, rgba(46,109,255,0.07) 0%, transparent 60%);
+        radial-gradient(ellipse 80% 50% at 10% -10%, rgba(79,143,255,0.18) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 95% 5%, rgba(167,139,250,0.1) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 60% at 80% 100%, rgba(37,99,235,0.08) 0%, transparent 60%);
     background-attachment: fixed;
 }
 
@@ -43,7 +43,7 @@ body::before {
     content: '';
     position: fixed;
     inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.028'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.018'/%3E%3C/svg%3E");
     background-size: 200px 200px;
     pointer-events: none;
     z-index: 0;

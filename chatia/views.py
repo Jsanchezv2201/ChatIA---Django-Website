@@ -1,5 +1,6 @@
 import json
 
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -15,8 +16,19 @@ from .services import ask_llm_stream
 @login_required
 @require_GET
 def home(request):
+	recent_conversations = request.user.conversations.all()[:4]
+	return render(
+		request,
+		'chatia/home.html',
+		{'recent_conversations': recent_conversations},
+	)
+
+
+@login_required
+@require_GET
+def chats(request):
 	conversations = request.user.conversations.all()
-	return render(request, 'chatia/home.html', {'conversations': conversations})
+	return render(request, 'chatia/chats.html', {'conversations': conversations})
 
 
 @login_required
@@ -130,3 +142,20 @@ def send_message_stream(request, conversation_id):
 @require_GET
 def info(request):
 	return render(request, 'chatia/info.html')
+
+
+@login_required
+@require_GET
+def profile(request):
+	return render(request, 'chatia/profile.html')
+
+
+@login_required
+@require_GET
+def configuration(request):
+	context = {
+		'llm_base_url': settings.LLM_BASE_URL,
+		'llm_model': settings.LLM_MODEL,
+		'llm_max_tokens': settings.LLM_MAX_TOKENS,
+	}
+	return render(request, 'chatia/configuration.html', context)

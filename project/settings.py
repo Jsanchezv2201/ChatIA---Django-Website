@@ -149,6 +149,7 @@ LOGOUT_REDIRECT_URL = 'login'
 LLM_BASE_URL = env_first('LLM_BASE_URL', default='https://integrate.api.nvidia.com/v1')
 LLM_API_KEY = env_first('LLM_API_KEY', 'OPENAI_API_KEY', 'NVIDIA_API_KEY')
 LLM_MODEL = env_first('LLM_MODEL', default='meta/llama-3.1-8b-instruct')
+LLM_MAX_TOKENS = int(env_first('LLM_MAX_TOKENS', default='1024'))
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

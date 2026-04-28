@@ -43,7 +43,7 @@ def ask_llm(conversation):
 				messages=build_messages_payload(conversation),
 				temperature=0.5,
 				top_p=0.7,
-				max_tokens=192,
+				max_tokens=settings.LLM_MAX_TOKENS,
 			)
 			content = completion.choices[0].message.content
 			return (content or '').strip() or 'El modelo no devolvio contenido.'
@@ -109,7 +109,7 @@ def ask_llm_stream(conversation):
 				messages=build_messages_payload(conversation),
 				temperature=0.5,
 				top_p=0.7,
-				max_tokens=192,
+				max_tokens=settings.LLM_MAX_TOKENS,
 				stream=True,
 			)
 

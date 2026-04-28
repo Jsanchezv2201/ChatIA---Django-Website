@@ -149,14 +149,10 @@
                             scrollMessagesToBottom(true);
                         }
 
-                        if (eventName === 'done' && payload.html) {
-                            var wrapper = document.createElement('div');
-                            wrapper.innerHTML = payload.html.trim();
-                            var newMessages = wrapper.firstElementChild;
-                            if (newMessages && newMessages.id === 'messages') {
-                                messages.replaceWith(newMessages);
-                            }
-                            scrollMessagesToBottom(true);
+                        if (eventName === 'done') {
+                            // Marcar el bubble como terminado (sin clase 'streaming')
+                            assistantBubble.article.classList.remove('streaming');
+                            // No hacer scroll adicional ya que se hizo durante el streaming
                         }
                     });
                 }

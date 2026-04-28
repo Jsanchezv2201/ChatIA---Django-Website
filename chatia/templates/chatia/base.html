@@ -12,19 +12,43 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
     <link rel="stylesheet" href="{% static 'chatia/style.css' %}">
 </head>
 <body>
     <!-- Cabecera comun con navegacion y acciones de sesion -->
-    <header class="topbar">
-        <a class="brand" href="{% url 'chatia:home' %}">
-            <img class="brand-logo" src="{% static 'chatia/logo.svg' %}" alt="Logo de ChatIA">
-            <span>ChatIA</span>
-        </a>
-        <nav>
-            <a href="{% url 'chatia:home' %}">Chat</a>
-            <a href="{% url 'chatia:info' %}">Info</a>
+    <header id="site-header" class="topbar">
+        <div class="topbar-branding">
+            <a class="brand" href="{% url 'chatia:home' %}">
+                <img class="brand-logo" src="{% static 'chatia/logo.svg' %}" alt="Logo de ChatIA">
+                <span>ChatIA</span>
+            </a>
+            {% if user.is_authenticated %}
+            <span class="user-badge">{{ user.username }}</span>
+            {% endif %}
+        </div>
+
+        {% with current_url_name=request.resolver_match.url_name %}
+        <nav id="site-nav" class="site-menu" aria-label="Navegación principal">
+            {% if current_url_name != 'home' %}
+            <a href="{% url 'chatia:home' %}">Principal</a>
+            {% endif %}
+            {% if current_url_name != 'chats' %}
+            <a href="{% url 'chatia:chats' %}">Chats</a>
+            {% endif %}
+            {% if user.is_authenticated and current_url_name != 'profile' %}
+            <a href="{% url 'chatia:profile' %}">{{ user.username }}</a>
+            {% endif %}
+            {% if user.is_authenticated and current_url_name != 'configuration' %}
+            <a href="{% url 'chatia:configuration' %}">Configuración</a>
+            {% endif %}
+            {% if current_url_name != 'info' %}
+            <a href="{% url 'chatia:info' %}">Ayuda</a>
+            {% endif %}
+            {% if user.is_authenticated and user.is_staff %}
+            <a href="{% url 'admin:index' %}">Admin</a>
+            {% endif %}
             {% if user.is_authenticated %}
             <!-- Cierre de sesion por POST para incluir token CSRF -->
             <form action="{% url 'logout' %}" method="post" class="logout-form">
@@ -35,14 +59,37 @@
             <a href="{% url 'login' %}">Entrar</a>
             {% endif %}
         </nav>
+        {% endwith %}
     </header>
 
     <!-- Zona principal donde cada plantilla hija inserta su contenido -->
-    <main class="shell">
+    <main id="site-main" class="shell container-xxl">
         {% block content %}{% endblock %}
     </main>
 
+    <footer id="site-footer" class="site-footer container-xxl">
+        <div class="footer-metrics">
+            <div class="metric-card">
+                <span class="metric-label">Conversaciones</span>
+                <strong>{{ site_metrics.total_conversations }}</strong>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Mensajes</span>
+                <strong>{{ site_metrics.total_messages }}</strong>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Tus conversaciones</span>
+                <strong>{{ site_metrics.user_conversations }}</strong>
+            </div>
+            <div class="metric-card">
+                <span class="metric-label">Tus mensajes</span>
+                <strong>{{ site_metrics.user_messages }}</strong>
+            </div>
+        </div>
+    </footer>
+
     <!-- Script comun del chat: autoscroll de mensajes y envio con Enter -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script>
         (function () {
             // Baja el panel al final para ver el ultimo mensaje.

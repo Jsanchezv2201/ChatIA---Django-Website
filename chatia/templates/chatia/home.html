@@ -3,31 +3,53 @@
 {% block title %}Inicio | ChatIA{% endblock %}
 
 {% block content %}
-<section class="auth-card">
-    <!-- Presentacion de la pagina principal -->
-    <h1>ChatIA</h1>
-    <p>Fase 4: conversaciones persistentes y envío de mensajes.</p>
+<section class="row g-3">
+    <div class="col-12">
+        <div class="auth-card card">
+            <div class="card-body">
+                <h1 class="card-title">Bienvenido, {{ user.username }}</h1>
+                <p class="card-text">ChatIA ya responde con streaming, guarda conversaciones y mantiene una estructura clara para seguir creciendo por fases.</p>
+                <div class="d-flex flex-wrap gap-2">
+                    <a class="btn btn-primary" href="{% url 'chatia:chats' %}">Ir a chats</a>
+                    <form method="post" action="{% url 'chatia:conversation_create' %}">
+                        {% csrf_token %}
+                        <button class="btn btn-outline-primary" type="submit">Nueva conversación</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <!-- Crea una nueva conversacion para el usuario autenticado -->
-    <form method="post" action="{% url 'chatia:conversation_create' %}">
-        {% csrf_token %}
-        <button class="primary" type="submit">Nueva conversación</button>
-    </form>
+    <div class="col-12 col-lg-7">
+        <div class="auth-card card h-100">
+            <div class="card-body">
+                <h2 class="h5">Conversaciones recientes</h2>
+                <div class="list-group list-group-flush">
+                    {% for conversation in recent_conversations %}
+                    <a class="list-group-item list-group-item-action" href="{% url 'chatia:conversation_detail' conversation.id %}">
+                        <strong>{{ conversation.title }}</strong>
+                        <div class="note">Actualizada el {{ conversation.updated_at|date:'d/m/Y H:i' }}</div>
+                    </a>
+                    {% empty %}
+                    <div class="list-group-item">Todavía no tienes conversaciones.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <!-- Listado de conversaciones guardadas -->
-    <h2>Tus conversaciones</h2>
-    <ul>
-        {% for conversation in conversations %}
-        <!-- Cada enlace abre el detalle de una conversacion -->
-        <li>
-            <a href="{% url 'chatia:conversation_detail' conversation.id %}">
-                {{ conversation.title }}
-            </a>
-        </li>
-        {% empty %}
-        <!-- Mensaje mostrado si no hay conversaciones -->
-        <li>No tienes conversaciones todavía.</li>
-        {% endfor %}
-    </ul>
+    <div class="col-12 col-lg-5">
+        <div class="auth-card card h-100">
+            <div class="card-body">
+                <h2 class="h5">Estado de la práctica</h2>
+                <ul class="mb-0">
+                    <li>Login por sesión activo.</li>
+                    <li>Historial persistente por usuario.</li>
+                    <li>Streaming de tokens en la conversación.</li>
+                    <li>Base visual preparada para la siguiente fase.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
 </section>
 {% endblock %}

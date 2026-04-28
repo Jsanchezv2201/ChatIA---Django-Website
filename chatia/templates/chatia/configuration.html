@@ -1,0 +1,39 @@
+{% extends 'chatia/base.html' %}
+
+{% block title %}Configuración | ChatIA{% endblock %}
+
+{% block content %}
+<section class="auth-card card">
+    <div class="card-body">
+        <h1 class="h3">Configuración</h1>
+        <p class="note">Aún sin preferencias persistentes por usuario; esta pantalla deja preparado el espacio para la siguiente fase.</p>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="metric-card h-100">
+                    <span class="metric-label">Modelo por defecto</span>
+                    <strong>{{ llm_model }}</strong>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="metric-card h-100">
+                    <span class="metric-label">Tokens máximos</span>
+                    <strong>{{ llm_max_tokens }}</strong>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="metric-card h-100">
+                    <span class="metric-label">Base URL</span>
+                    <strong>{{ llm_base_url }}</strong>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="metric-card h-100">
+                    <span class="metric-label">Usuario</span>
+                    <strong>{{ user.username }}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

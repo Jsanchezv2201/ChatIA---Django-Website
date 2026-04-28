@@ -3,17 +3,19 @@
 {% block title %}Entrar | ChatIA{% endblock %}
 
 {% block content %}
-<section class="auth-card">
+<section class="auth-card card">
     <!-- Formulario de autenticacion de Django -->
-    <h1>Iniciar sesión</h1>
+    <div class="card-body">
+    <h1 class="h3">Iniciar sesión</h1>
     <form method="post">
         <!-- Token CSRF obligatorio en formularios POST -->
         {% csrf_token %}
         <!-- Renderizado automatico del formulario de login -->
         {{ form.as_p }}
-        <button class="primary" type="submit">Entrar</button>
+        <button class="btn btn-primary" type="submit">Entrar</button>
     </form>
     <!-- Nota para entorno de practicas -->
     <p class="note">Crea usuarios desde Admin Site para las pruebas.</p>
+    </div>
 </section>
 {% endblock %}

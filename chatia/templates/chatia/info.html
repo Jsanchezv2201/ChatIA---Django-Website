@@ -3,9 +3,34 @@
 {% block title %}Info | ChatIA{% endblock %}
 
 {% block content %}
-<!-- Tarjeta informativa simple sobre el estado de la aplicacion -->
-<section class="auth-card">
-    <h1>Información de ChatIA</h1>
-    <p>Aplicación Django con acceso mediante sesión.</p>
+<section class="auth-card card">
+    <div class="card-body">
+        <h1 class="h3">Ayuda y documentación</h1>
+        <p class="note">Resumen del funcionamiento general, estructura y créditos del proyecto.</p>
+
+        <div class="row g-3">
+            <div class="col-lg-6">
+                <div class="metric-card h-100">
+                    <span class="metric-label">Cómo funciona</span>
+                    <strong>Login, chats persistentes y streaming de respuesta</strong>
+                    <p class="mb-0 mt-2">El usuario entra con su sesión, crea conversaciones y envía prompts al modelo LLM para recibir respuestas guardadas en el historial.</p>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="metric-card h-100">
+                    <span class="metric-label">Estructura</span>
+                    <strong>Plantillas Django + CSS modular</strong>
+                    <p class="mb-0 mt-2">La interfaz se divide en base, navegación, layout de chat y formularios/responsive para mantener una evolución por fases.</p>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="metric-card">
+                    <span class="metric-label">Créditos</span>
+                    <strong>Proyecto desarrollado como práctica de ChatIA</strong>
+                    <p class="mb-0 mt-2">Repositorio y evolución pensados para seguir el enunciado del curso, con una implementación propia y documentada por fases.</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
 {% endblock %}

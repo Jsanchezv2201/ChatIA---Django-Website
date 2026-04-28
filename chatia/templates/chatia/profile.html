@@ -1,0 +1,39 @@
+{% extends 'chatia/base.html' %}
+
+{% block title %}Perfil | ChatIA{% endblock %}
+
+{% block content %}
+<section class="auth-card card">
+    <div class="card-body">
+        <h1 class="h3">Perfil de {{ user.username }}</h1>
+        <p class="note">Página personal del usuario autenticado.</p>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="metric-card h-100">
+                    <span class="metric-label">Nombre de usuario</span>
+                    <strong>{{ user.username }}</strong>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="metric-card h-100">
+                    <span class="metric-label">Conversaciones propias</span>
+                    <strong>{{ site_metrics.user_conversations }}</strong>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="metric-card h-100">
+                    <span class="metric-label">Mensajes propios</span>
+                    <strong>{{ site_metrics.user_messages }}</strong>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="metric-card h-100">
+                    <span class="metric-label">Estado</span>
+                    <strong>Sesión activa</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

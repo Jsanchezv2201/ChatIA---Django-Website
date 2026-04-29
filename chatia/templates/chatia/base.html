@@ -67,6 +67,7 @@
         {% block content %}{% endblock %}
     </main>
 
+    {% block footer %}
     <footer id="site-footer" class="site-footer container-xxl">
         <div class="footer-metrics">
             <div class="metric-card">
@@ -87,6 +88,7 @@
             </div>
         </div>
     </footer>
+    {% endblock %}
 
     <!-- Script comun del chat: autoscroll de mensajes y envio con Enter -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>

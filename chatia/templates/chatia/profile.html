@@ -39,7 +39,7 @@
         {% if recent_conversations %}
             <div class="list-group list-group-sm">
                 {% for conv in recent_conversations %}
-                    <a href="{% url 'conversation_detail' conv.id %}" class="list-group-item list-group-item-action">
+                    <a href="{% url 'chatia:conversation_detail' conv.id %}" class="list-group-item list-group-item-action">
                         <div class="d-flex w-100 justify-content-between">
                             <strong>{{ conv.title }}</strong>
                             <small class="text-muted">{{ conv.updated_at|date:"d/m/Y H:i" }}</small>
@@ -49,7 +49,7 @@
                 {% endfor %}
             </div>
         {% else %}
-            <p class="text-muted">No hay conversaciones aún. <a href="{% url 'conversation_create' %}">Crea una</a>.</p>
+            <p class="text-muted">No hay conversaciones aún. <a href="{% url 'chatia:conversation_create' %}">Crea una</a>.</p>
         {% endif %}
 
         {% if last_conversation %}

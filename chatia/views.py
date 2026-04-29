@@ -11,6 +11,8 @@ from .forms import PromptForm
 from .models import Conversation, Message, UserPreference
 from .services import ask_llm
 from .services import ask_llm_stream
+from django.http import JsonResponse
+from django.utils.timezone import localtime
 
 
 @login_required
@@ -156,6 +158,61 @@ def profile(request):
 		'last_conversation': last_conversation,
 	}
 	return render(request, 'chatia/profile.html', context)
+
+
+@login_required
+@require_GET
+def api_conversations(request):
+	"""Devuelve JSON con la lista de conversaciones del usuario autenticado.
+
+	Usos: consumidores API (devuelve JSON). Requiere autenticación por sesión (usuario logueado).
+	Ejemplo de respuesta: [{"id":1, "title":"...", "updated_at":"...", "messages":3}, ...]
+	"""
+	conversations = request.user.conversations.all().order_by('-updated_at')
+	data = [
+		{
+			'id': c.id,
+			'title': c.title,
+			'updated_at': localtime(c.updated_at).isoformat(),
+			'messages': c.messages.count(),
+		}
+		for c in conversations
+	]
+	return JsonResponse(data, safe=False)
+
+
+@login_required
+@require_GET
+def api_statistics(request):
+	"""Devuelve estadísticas en JSON (globales y del usuario).
+
+	Usos: herramientas de monitorización o frontend que muestren métricas. Requiere autenticación por sesión.
+	Ejemplo de respuesta: {"total_conversations":42, "total_messages":317, ...}
+	"""
+	total_conversations = Conversation.objects.count()
+	total_messages = Message.objects.count()
+	user_conversations = request.user.conversations.count()
+	user_messages = sum(c.messages.count() for c in request.user.conversations.all())
+	return JsonResponse(
+		{
+			'total_conversations': total_conversations,
+			'total_messages': total_messages,
+			'user_conversations': user_conversations,
+			'user_messages': user_messages,
+		}
+	)
+
+
+@login_required
+@require_GET
+def conversations_partial(request):
+	"""Devuelve un fragmento HTML con las conversaciones del usuario (usado por HTMX).
+
+	HTMX realizará un GET a esta vista y reemplazará un contenedor en la página padre
+	con el HTML devuelto (ver `chats.html` para el contenedor objetivo).
+	"""
+	conversations = request.user.conversations.all()
+	return render(request, 'chatia/_conversations_list.html', {'conversations': conversations})
 
 
 @login_required

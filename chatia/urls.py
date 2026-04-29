@@ -18,4 +18,9 @@ urlpatterns = [
         name='send_message_stream',
     ),
     path('conversations/<int:conversation_id>/send/', views.send_message, name='send_message'),
+    # JSON endpoints for Fase 8
+    path('api/conversations/', views.api_conversations, name='api_conversations'),
+    path('api/statistics/', views.api_statistics, name='api_statistics'),
+    # Partial HTML for HTMX
+    path('conversations/partial/', views.conversations_partial, name='conversations_partial'),
 ]

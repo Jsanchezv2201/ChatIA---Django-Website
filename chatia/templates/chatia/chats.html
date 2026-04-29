@@ -16,15 +16,15 @@
             </form>
         </div>
 
-        <div class="list-group">
-            {% for conversation in conversations %}
-            <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" href="{% url 'chatia:conversation_detail' conversation.id %}">
-                <span>{{ conversation.title }}</span>
-                <small class="note">{{ conversation.updated_at|date:'d/m/Y H:i' }}</small>
-            </a>
-            {% empty %}
-            <div class="list-group-item">No tienes conversaciones todavía.</div>
-            {% endfor %}
+        <!--
+            Cargador de fragmento con HTMX:
+            - hx-get: URL para obtener el fragmento HTML con la lista de conversaciones
+            - hx-trigger: dispara la petición al cargar la página y cada 15 segundos
+            - hx-swap: reemplaza el contenido interno de este contenedor con la respuesta
+            Permite actualizar la lista sin recargar toda la página (mejora la experiencia de usuario).
+        -->
+        <div id="conversations-list" hx-get="{% url 'chatia:conversations_partial' %}" hx-trigger="load, every 15s" hx-swap="innerHTML">
+            {% include 'chatia/_conversations_list.html' %}
         </div>
     </div>
 </section>

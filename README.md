@@ -1,25 +1,17 @@
-# Final-ChatIA
-
-Repositorio de plantilla para el proyecto final del curso 2025-2026.
-
-Para entregar el proyecto depositado en este repositorio, leer con atención el apartado sobre la entrega del enunciado del ejercicio. Antes de entregar, rellenar el texto que viene a continuación según indica dicho enunciado, y borrar toda esta primera parte.
-
-<<<<<BORRAR HASTA AQUí, INCLIUDA ESTA LÍNEA>>>>>
-
 # ENTREGA CONVOCATORIA XXX
 
 # ENTREGA DE PRÁCTICA
 
 ## Datos
 
-* Nombre:
-* Titulación:
-* Cuenta en laboratorios:
-* Cuenta URJC:
+* Nombre: Juan Sánchez Vinuesa
+* Titulación: Grado en Ingeniería Telemática
+* Cuenta en laboratorios: juansv
+* Cuenta URJC: j.sanchezv.2021
 * Video básico (url):
 * Video parte opcional (url):
 * Despliegue (url):
-* Contraseñas:
+* Contraseñas: 
 * Cuenta Admin Site: usuario/contraseña
 
 ## Recursos implementados y métodos disponibles para cada recurso

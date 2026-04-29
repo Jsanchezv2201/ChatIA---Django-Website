@@ -6,8 +6,9 @@
 <section class="auth-card card">
     <div class="card-body">
         <h1 class="h3">Configuración</h1>
-        <p class="note">Aún sin preferencias persistentes por usuario; esta pantalla deja preparado el espacio para la siguiente fase.</p>
+        <p class="note">Configuración actual de LLM y preferencias personales.</p>
 
+        <h2 class="h5 mt-4 mb-3">Configuración global del servidor</h2>
         <div class="row g-3">
             <div class="col-md-6">
                 <div class="metric-card h-100">
@@ -24,7 +25,7 @@
             <div class="col-md-6">
                 <div class="metric-card h-100">
                     <span class="metric-label">Base URL</span>
-                    <strong>{{ llm_base_url }}</strong>
+                    <code style="font-size: 0.85em;">{{ llm_base_url }}</code>
                 </div>
             </div>
             <div class="col-md-6">
@@ -33,6 +34,38 @@
                     <strong>{{ user.username }}</strong>
                 </div>
             </div>
+        </div>
+
+        <h2 class="h5 mt-4 mb-3">Preferencias personales</h2>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="metric-card h-100">
+                    <span class="metric-label">Modelo preferido</span>
+                    <strong>{{ user_preference.llm_model }}</strong>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="metric-card h-100">
+                    <span class="metric-label">Tokens máximos personales</span>
+                    <strong>{{ user_preference.llm_max_tokens }}</strong>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="metric-card h-100">
+                    <span class="metric-label">Temperatura (creatividad)</span>
+                    <strong>{{ user_preference.llm_temperature }}</strong>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="metric-card h-100">
+                    <span class="metric-label">Última actualización</span>
+                    <small class="text-muted">{{ user_preference.updated_at|date:"d/m/Y H:i" }}</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 p-3" style="background: var(--bg-accent, #f0f4f8); border-radius: 8px;">
+            <strong>Nota:</strong> Estas preferencias personales están guardadas en tu perfil. En próximas versiones podrás editarlas desde aquí mediante un formulario. Por ahora son de solo lectura.
         </div>
     </div>
 </section>

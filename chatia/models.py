@@ -35,3 +35,18 @@ class Message(models.Model):
 
 	def __str__(self):
 		return f"{self.conversation_id} - {self.role}"
+
+
+class UserPreference(models.Model):
+	user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='preference')
+	llm_model = models.CharField(max_length=120, default='meta/llama-3.1-8b-instruct')
+	llm_max_tokens = models.IntegerField(default=1024)
+	llm_temperature = models.FloatField(default=0.7, help_text='Valor entre 0.0 y 2.0')
+	created_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
+
+	class Meta:
+		verbose_name_plural = 'User Preferences'
+
+	def __str__(self):
+		return f"Preferencias de {self.user.username}"

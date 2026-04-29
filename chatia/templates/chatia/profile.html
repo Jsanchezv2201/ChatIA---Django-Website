@@ -8,7 +8,7 @@
         <h1 class="h3">Perfil de {{ user.username }}</h1>
         <p class="note">Página personal del usuario autenticado.</p>
 
-        <div class="row g-3">
+        <div class="row g-3 mb-4">
             <div class="col-md-6">
                 <div class="metric-card h-100">
                     <span class="metric-label">Nombre de usuario</span>
@@ -23,8 +23,8 @@
             </div>
             <div class="col-md-6">
                 <div class="metric-card h-100">
-                    <span class="metric-label">Mensajes propios</span>
-                    <strong>{{ site_metrics.user_messages }}</strong>
+                    <span class="metric-label">Mensajes totales</span>
+                    <strong>{{ total_messages }}</strong>
                 </div>
             </div>
             <div class="col-md-6">
@@ -34,6 +34,30 @@
                 </div>
             </div>
         </div>
+
+        <h2 class="h5 mt-4 mb-3">Últimas conversaciones</h2>
+        {% if recent_conversations %}
+            <div class="list-group list-group-sm">
+                {% for conv in recent_conversations %}
+                    <a href="{% url 'conversation_detail' conv.id %}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <strong>{{ conv.title }}</strong>
+                            <small class="text-muted">{{ conv.updated_at|date:"d/m/Y H:i" }}</small>
+                        </div>
+                        <small class="text-muted">{{ conv.messages.count }} mensajes</small>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-muted">No hay conversaciones aún. <a href="{% url 'conversation_create' %}">Crea una</a>.</p>
+        {% endif %}
+
+        {% if last_conversation %}
+        <div class="mt-4 p-3" style="background: var(--bg-accent, #f0f4f8); border-radius: 8px;">
+            <strong>Última conversación:</strong> {{ last_conversation.title }}<br>
+            <small class="text-muted">{{ last_conversation.updated_at|date:"d/m/Y H:i" }}</small>
+        </div>
+        {% endif %}
     </div>
 </section>
 {% endblock %}

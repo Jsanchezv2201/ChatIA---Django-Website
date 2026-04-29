@@ -8,7 +8,7 @@ from django.template.loader import render_to_string
 from django.views.decorators.http import require_GET, require_POST
 
 from .forms import PromptForm
-from .models import Conversation, Message
+from .models import Conversation, Message, UserPreference
 from .services import ask_llm
 from .services import ask_llm_stream
 
@@ -147,15 +147,25 @@ def info(request):
 @login_required
 @require_GET
 def profile(request):
-	return render(request, 'chatia/profile.html')
+	recent_conversations = request.user.conversations.all()[:5]
+	total_messages = sum(c.messages.count() for c in request.user.conversations.all())
+	last_conversation = request.user.conversations.first()
+	context = {
+		'recent_conversations': recent_conversations,
+		'total_messages': total_messages,
+		'last_conversation': last_conversation,
+	}
+	return render(request, 'chatia/profile.html', context)
 
 
 @login_required
 @require_GET
 def configuration(request):
+	user_pref, created = UserPreference.objects.get_or_create(user=request.user)
 	context = {
 		'llm_base_url': settings.LLM_BASE_URL,
 		'llm_model': settings.LLM_MODEL,
 		'llm_max_tokens': settings.LLM_MAX_TOKENS,
+		'user_preference': user_pref,
 	}
 	return render(request, 'chatia/configuration.html', context)

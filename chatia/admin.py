@@ -5,7 +5,8 @@ from .models import Conversation, Message, UserPreference
 
 @admin.register(Conversation)
 class ConversationAdmin(admin.ModelAdmin):
-	list_display = ('id', 'user', 'title', 'updated_at')
+	list_display = ('id', 'user', 'title', 'is_archived', 'updated_at')
+	list_filter = ('is_archived',)
 	search_fields = ('title', 'user__username')
 
 

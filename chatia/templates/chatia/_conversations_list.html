@@ -1,13 +1,48 @@
 <!-- Plantilla parcial renderizada por la vista `conversations_partial`.
     Este fragmento lo solicita HTMX y se inserta en la página principal.
     Mantener esta plantilla mínima porque se intercambiará en el DOM. -->
-<div class="list-group">
-    {% for conversation in conversations %}
-    <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" href="{% url 'chatia:conversation_detail' conversation.id %}">
-        <span>{{ conversation.title }}</span>
-        <small class="note">{{ conversation.updated_at|date:'d/m/Y H:i' }}</small>
-    </a>
-    {% empty %}
-    <div class="list-group-item">No tienes conversaciones todavía.</div>
-    {% endfor %}
+<div class="conversation-groups">
+    <div class="conversation-group">
+        <h3 class="h6 mb-3">Activas</h3>
+        <div class="list-group">
+            {% for conversation in active_conversations %}
+            <div class="list-group-item">
+                <div class="d-flex justify-content-between align-items-start gap-3">
+                    <a class="text-decoration-none flex-grow-1" href="{% url 'chatia:conversation_detail' conversation.id %}">
+                        <span class="d-block fw-semibold">{{ conversation.title }}</span>
+                        <small class="note">{{ conversation.updated_at|date:'d/m/Y H:i' }}</small>
+                    </a>
+                    <form method="post" action="{% url 'chatia:conversation_toggle_archive' conversation.id %}">
+                        {% csrf_token %}
+                        <button class="btn btn-sm btn-outline-secondary" type="submit">Archivar</button>
+                    </form>
+                </div>
+            </div>
+            {% empty %}
+            <div class="list-group-item">No tienes conversaciones activas todavía.</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="conversation-group mt-4">
+        <h3 class="h6 mb-3">Archivadas</h3>
+        <div class="list-group">
+            {% for conversation in archived_conversations %}
+            <div class="list-group-item list-group-item-secondary">
+                <div class="d-flex justify-content-between align-items-start gap-3">
+                    <a class="text-decoration-none flex-grow-1" href="{% url 'chatia:conversation_detail' conversation.id %}">
+                        <span class="d-block fw-semibold">{{ conversation.title }}</span>
+                        <small class="note">Archivada · {{ conversation.updated_at|date:'d/m/Y H:i' }}</small>
+                    </a>
+                    <form method="post" action="{% url 'chatia:conversation_toggle_archive' conversation.id %}">
+                        {% csrf_token %}
+                        <button class="btn btn-sm btn-outline-primary" type="submit">Restaurar</button>
+                    </form>
+                </div>
+            </div>
+            {% empty %}
+            <div class="list-group-item">No tienes conversaciones archivadas.</div>
+            {% endfor %}
+        </div>
+    </div>
 </div>

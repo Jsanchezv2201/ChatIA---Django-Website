@@ -12,3 +12,15 @@ class PromptForm(forms.Form):
             }
         ),
     )
+
+
+class ConversationTitleForm(forms.Form):
+    title = forms.CharField(
+        label='Título',
+        max_length=120,
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': 'Nuevo título de la conversación',
+            }
+        ),
+    )

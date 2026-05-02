@@ -59,6 +59,39 @@ class ConversationTests(TestCase):
 		self.assertEqual(response.status_code, 302)
 		conversation = Conversation.objects.filter(user=self.user).first()
 		self.assertIsNotNone(conversation)
+		self.assertFalse(conversation.is_archived)
+
+	def test_rename_conversation(self):
+		"""Test: renombrar una conversación del usuario."""
+		conversation = Conversation.objects.create(user=self.user, title='Titulo viejo')
+		response = self.client.post(
+			reverse('chatia:conversation_rename', args=[conversation.id]),
+			{'title': 'Nuevo titulo'}
+		)
+		self.assertEqual(response.status_code, 302)
+		conversation.refresh_from_db()
+		self.assertEqual(conversation.title, 'Nuevo titulo')
+
+	def test_archive_conversation(self):
+		"""Test: archivar y restaurar una conversación."""
+		conversation = Conversation.objects.create(user=self.user, title='Para archivar')
+		response = self.client.post(reverse('chatia:conversation_toggle_archive', args=[conversation.id]))
+		self.assertEqual(response.status_code, 302)
+		conversation.refresh_from_db()
+		self.assertTrue(conversation.is_archived)
+
+		response = self.client.post(reverse('chatia:conversation_toggle_archive', args=[conversation.id]))
+		self.assertEqual(response.status_code, 302)
+		conversation.refresh_from_db()
+		self.assertFalse(conversation.is_archived)
+
+	def test_delete_conversation(self):
+		"""Test: borrar una conversación del usuario."""
+		conversation = Conversation.objects.create(user=self.user, title='Para borrar')
+		conversation_id = conversation.id
+		response = self.client.post(reverse('chatia:conversation_delete', args=[conversation_id]))
+		self.assertEqual(response.status_code, 302)
+		self.assertFalse(Conversation.objects.filter(id=conversation_id).exists())
 
 	def test_user_cannot_see_other_conversations(self):
 		"""Test: usuario no puede ver conversaciones de otros usuarios."""

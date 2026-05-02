@@ -12,6 +12,9 @@ urlpatterns = [
     path('info/', views.info, name='info'),
     path('conversations/new/', views.conversation_create, name='conversation_create'),
     path('conversations/<int:conversation_id>/', views.conversation_detail, name='conversation_detail'),
+    path('conversations/<int:conversation_id>/rename/', views.conversation_rename, name='conversation_rename'),
+    path('conversations/<int:conversation_id>/archive-toggle/', views.conversation_toggle_archive, name='conversation_toggle_archive'),
+    path('conversations/<int:conversation_id>/delete/', views.conversation_delete, name='conversation_delete'),
     path(
         'conversations/<int:conversation_id>/send-stream/',
         views.send_message_stream,

@@ -1,24 +1,24 @@
 import json
 
 from django.conf import settings
+from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.http import StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.views.decorators.http import require_GET, require_POST
 
-from .forms import PromptForm
+from .forms import ConversationTitleForm, PromptForm
 from .models import Conversation, Message, UserPreference
 from .services import ask_llm
 from .services import ask_llm_stream
-from django.http import JsonResponse
 from django.utils.timezone import localtime
 
 
 @login_required
 @require_GET
 def home(request):
-	recent_conversations = request.user.conversations.all()[:4]
+	recent_conversations = request.user.conversations.filter(is_archived=False)[:4]
 	return render(
 		request,
 		'chatia/home.html',
@@ -29,8 +29,16 @@ def home(request):
 @login_required
 @require_GET
 def chats(request):
-	conversations = request.user.conversations.all()
-	return render(request, 'chatia/chats.html', {'conversations': conversations})
+	active_conversations = request.user.conversations.filter(is_archived=False)
+	archived_conversations = request.user.conversations.filter(is_archived=True)
+	return render(
+		request,
+		'chatia/chats.html',
+		{
+			'active_conversations': active_conversations,
+			'archived_conversations': archived_conversations,
+		},
+	)
 
 
 @login_required
@@ -47,6 +55,7 @@ def conversation_detail(request, conversation_id):
 	context = {
 		'conversation': conversation,
 		'conversations': request.user.conversations.all(),
+		'conversation_title_form': ConversationTitleForm(initial={'title': conversation.title}),
 		'form': PromptForm(),
 	}
 	return render(request, 'chatia/conversation_detail.html', context)
@@ -54,8 +63,46 @@ def conversation_detail(request, conversation_id):
 
 @login_required
 @require_POST
+def conversation_rename(request, conversation_id):
+	conversation = get_object_or_404(Conversation, id=conversation_id, user=request.user)
+	form = ConversationTitleForm(request.POST)
+	if form.is_valid():
+		title = form.cleaned_data['title'].strip()
+		if title:
+			conversation.title = title[:120]
+			conversation.save(update_fields=['title', 'updated_at'])
+	return redirect('chatia:conversation_detail', conversation_id=conversation.id)
+
+
+@login_required
+@require_POST
+def conversation_toggle_archive(request, conversation_id):
+	conversation = get_object_or_404(Conversation, id=conversation_id, user=request.user)
+	conversation.is_archived = not conversation.is_archived
+	conversation.save(update_fields=['is_archived', 'updated_at'])
+	return redirect('chatia:chats')
+
+
+@login_required
+@require_POST
+def conversation_delete(request, conversation_id):
+	conversation = get_object_or_404(Conversation, id=conversation_id, user=request.user)
+	conversation.delete()
+	return redirect('chatia:chats')
+
+
+@login_required
+@require_POST
 def send_message(request, conversation_id):
 	conversation = get_object_or_404(Conversation, id=conversation_id, user=request.user)
+	if conversation.is_archived:
+		context = {
+			'conversation': conversation,
+			'conversations': request.user.conversations.all(),
+			'form': PromptForm(),
+			'error': 'La conversación está archivada. Desarchívala para seguir escribiendo.',
+		}
+		return render(request, 'chatia/conversation_detail.html', context, status=400)
 	form = PromptForm(request.POST)
 	if not form.is_valid():
 		context = {
@@ -91,6 +138,12 @@ def send_message(request, conversation_id):
 @require_POST
 def send_message_stream(request, conversation_id):
 	conversation = get_object_or_404(Conversation, id=conversation_id, user=request.user)
+	if conversation.is_archived:
+		return StreamingHttpResponse(
+			'event: error\ndata: {"message":"La conversación está archivada. Desarchívala para seguir escribiendo."}\n\n',
+			content_type='text/event-stream',
+			status=400,
+		)
 	form = PromptForm(request.POST)
 	if not form.is_valid():
 		return StreamingHttpResponse(
@@ -173,6 +226,7 @@ def api_conversations(request):
 		{
 			'id': c.id,
 			'title': c.title,
+			'is_archived': c.is_archived,
 			'updated_at': localtime(c.updated_at).isoformat(),
 			'messages': c.messages.count(),
 		}
@@ -211,8 +265,16 @@ def conversations_partial(request):
 	HTMX realizará un GET a esta vista y reemplazará un contenedor en la página padre
 	con el HTML devuelto (ver `chats.html` para el contenedor objetivo).
 	"""
-	conversations = request.user.conversations.all()
-	return render(request, 'chatia/_conversations_list.html', {'conversations': conversations})
+	active_conversations = request.user.conversations.filter(is_archived=False)
+	archived_conversations = request.user.conversations.filter(is_archived=True)
+	return render(
+		request,
+		'chatia/_conversations_list.html',
+		{
+			'active_conversations': active_conversations,
+			'archived_conversations': archived_conversations,
+		},
+	)
 
 
 @login_required

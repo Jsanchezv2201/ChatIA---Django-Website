@@ -5,6 +5,8 @@ import json
 from unittest.mock import patch
 
 from .models import Conversation, Message, UserPreference
+from .forms import PromptForm
+from .services import build_messages_payload
 
 
 class AuthenticationTests(TestCase):
@@ -223,12 +225,21 @@ class TemplateRenderingTests(TestCase):
 		self.assertEqual(response.status_code, 200)
 		self.assertContains(response, 'ChatIA')
 
-	def test_footer_appears_in_pages(self):
-		"""Test: el footer aparece en las páginas autenticadas."""
+	def test_info_page_loads(self):
+		"""Test: página de información/ayuda se carga correctamente."""
+		response = self.client.get(reverse('chatia:info'))
+		
+		self.assertEqual(response.status_code, 200)
+		self.assertTemplateUsed(response, 'chatia/info.html')
+
+	def test_footer_appears_in_all_pages(self):
+		"""Test: el footer aparece en todas las páginas."""
 		pages = [
 			reverse('chatia:home'),
 			reverse('chatia:chats'),
 			reverse('chatia:profile'),
+			reverse('chatia:configuration'),
+			reverse('chatia:info'),
 		]
 		
 		for page in pages:
@@ -236,3 +247,81 @@ class TemplateRenderingTests(TestCase):
 			self.assertEqual(response.status_code, 200)
 			# El footer debe contener el ID site-footer
 			self.assertContains(response, 'site-footer')
+
+
+class ModelUnitTests(TestCase):
+	"""Tests unitarios de modelos (opcionales)."""
+
+	def setUp(self):
+		self.user = User.objects.create_user(
+			username='unituser',
+			email='unit@example.com',
+			password='unitpass123'
+		)
+
+	def test_conversation_default_title(self):
+		"""Conversation usa el título por defecto esperado."""
+		conversation = Conversation.objects.create(user=self.user)
+		self.assertEqual(conversation.title, 'Nueva conversacion')
+
+	def test_message_role_choices_contains_required_roles(self):
+		"""Message expone roles user y assistant para el flujo del chat."""
+		roles = [choice[0] for choice in Message.ROLE_CHOICES]
+		self.assertIn(Message.ROLE_USER, roles)
+		self.assertIn(Message.ROLE_ASSISTANT, roles)
+
+	def test_user_preference_defaults(self):
+		"""UserPreference crea valores por defecto válidos."""
+		pref = UserPreference.objects.create(user=self.user)
+		self.assertEqual(pref.llm_model, 'meta/llama-3.1-8b-instruct')
+		self.assertEqual(pref.llm_max_tokens, 1024)
+		self.assertEqual(pref.llm_temperature, 0.7)
+
+
+class FormUnitTests(TestCase):
+	"""Tests unitarios de formularios (opcionales)."""
+
+	def test_prompt_form_valid(self):
+		"""PromptForm acepta un prompt válido."""
+		form = PromptForm(data={'prompt': 'Hola mundo'})
+		self.assertTrue(form.is_valid())
+
+	def test_prompt_form_rejects_too_long_prompt(self):
+		"""PromptForm rechaza prompts que exceden max_length."""
+		form = PromptForm(data={'prompt': 'a' * 1501})
+		self.assertFalse(form.is_valid())
+		self.assertIn('prompt', form.errors)
+
+
+class ServiceUnitTests(TestCase):
+	"""Tests unitarios de servicios (opcionales)."""
+
+	def setUp(self):
+		self.user = User.objects.create_user(
+			username='serviceuser',
+			email='service@example.com',
+			password='servicepass123'
+		)
+		self.conversation = Conversation.objects.create(user=self.user)
+
+	def test_build_messages_payload_adds_system_message(self):
+		"""El payload siempre incluye el mensaje system en primera posición."""
+		payload = build_messages_payload(self.conversation)
+		self.assertGreaterEqual(len(payload), 1)
+		self.assertEqual(payload[0]['role'], 'system')
+
+	def test_build_messages_payload_uses_last_12_messages(self):
+		"""El payload limita el historial a los últimos 12 mensajes en orden correcto."""
+		for i in range(1, 15):
+			Message.objects.create(
+				conversation=self.conversation,
+				role=Message.ROLE_USER,
+				content=f'msg {i}'
+			)
+
+		payload = build_messages_payload(self.conversation)
+
+		# 1 system + 12 mensajes recientes
+		self.assertEqual(len(payload), 13)
+		self.assertEqual(payload[1]['content'], 'msg 3')
+		self.assertEqual(payload[-1]['content'], 'msg 14')

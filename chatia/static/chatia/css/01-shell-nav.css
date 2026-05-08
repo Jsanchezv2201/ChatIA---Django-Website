@@ -143,7 +143,7 @@ nav a:hover,
     z-index: 1;
     max-width: 1280px;
     margin: 1.8rem auto;
-    padding: 0 1.2rem 12rem;
+    padding: 0 1.2rem 8rem;
     /* Espacio adicional para el footer fijo en el bottom */
 }
 

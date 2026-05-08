@@ -3,7 +3,8 @@
     display: grid;
     grid-template-columns: 300px 1fr;
     gap: 1.1rem;
-    align-items: start;
+    align-items: stretch;
+    min-height: calc(100dvh - 13.5rem);
 }
 
 /* Tarjetas principales reutilizadas en la app. */
@@ -106,17 +107,34 @@
 
 .primary:active { transform: translateY(0); }
 
+/* Menú contextual de acciones de la conversación. */
+.conversation-menu .dropdown-toggle::after {
+    display: none;
+}
+
+.conversation-menu .dropdown-menu {
+    min-width: 19rem;
+}
+
+.conversation-menu .dropdown-item {
+    white-space: normal;
+}
+
 /* Panel central donde vive el chat. */
 .chat-panel {
-    display: grid;
-    grid-template-rows: auto 1fr auto;
+    display: flex;
+    flex-direction: column;
     gap: 1rem;
+    height: calc(100dvh - 13.5rem);
+    min-height: 0;
+    overflow: hidden;
 }
 
 /* Caja con scroll donde se pintan los mensajes. */
 .messages-box {
-    min-height: 52vh;
-    max-height: 64vh;
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
     overflow-y: auto;
     border: 1px solid var(--line);
     border-radius: var(--r-lg);

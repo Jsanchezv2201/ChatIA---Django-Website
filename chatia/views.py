@@ -54,7 +54,7 @@ def conversation_detail(request, conversation_id):
 	conversation = get_object_or_404(Conversation, id=conversation_id, user=request.user)
 	context = {
 		'conversation': conversation,
-		'conversations': request.user.conversations.all(),
+		'conversations': request.user.conversations.filter(is_archived=False),
 		'conversation_title_form': ConversationTitleForm(initial={'title': conversation.title}),
 		'form': PromptForm(),
 	}

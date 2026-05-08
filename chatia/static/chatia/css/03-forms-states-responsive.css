@@ -174,7 +174,9 @@
 /* Adaptacion para pantallas medianas y tablet. */
 @media (max-width: 980px) {
     .layout { grid-template-columns: 1fr; }
-    .messages-box { min-height: 42vh; }
+    .layout { min-height: calc(100dvh - 15rem); }
+    .chat-panel { height: calc(100dvh - 15rem); }
+    .messages-box { min-height: 0; }
     .bubble.user,
     .bubble.assistant { margin-left: 0; margin-right: 0; }
 }
@@ -186,4 +188,6 @@
     .composer { grid-template-columns: 1fr; }
     .composer .primary { width: 100%; }
     .composer-meta { flex-direction: column; align-items: flex-start; }
+    .layout { min-height: calc(100dvh - 16.5rem); }
+    .chat-panel { height: calc(100dvh - 16.5rem); }
 }

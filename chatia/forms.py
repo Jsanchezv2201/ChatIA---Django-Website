@@ -21,6 +21,8 @@ class ConversationTitleForm(forms.Form):
         widget=forms.TextInput(
             attrs={
                 'placeholder': 'Nuevo título de la conversación',
+                'class': 'form-control form-control-sm',
+                'autocomplete': 'off',
             }
         ),
     )

@@ -12,10 +12,34 @@
                         <span class="d-block fw-semibold">{{ conversation.title }}</span>
                         <small class="note">{{ conversation.updated_at|date:'d/m/Y H:i' }}</small>
                     </a>
-                    <form method="post" action="{% url 'chatia:conversation_toggle_archive' conversation.id %}">
-                        {% csrf_token %}
-                        <button class="btn btn-sm btn-outline-secondary" type="submit">Archivar</button>
-                    </form>
+                    <div class="dropdown conversation-menu">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Más acciones">
+                            <span aria-hidden="true">⋯</span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end p-2">
+                            <form method="post" action="{% url 'chatia:conversation_rename' conversation.id %}" class="d-grid gap-2 mb-2">
+                                {% csrf_token %}
+                                <input
+                                    type="text"
+                                    name="title"
+                                    class="form-control form-control-sm"
+                                    value="{{ conversation.title }}"
+                                    maxlength="120"
+                                    autocomplete="off"
+                                    placeholder="Renombrar conversación"
+                                >
+                                <button class="btn btn-sm btn-primary" type="submit">Renombrar</button>
+                            </form>
+                            <form method="post" action="{% url 'chatia:conversation_toggle_archive' conversation.id %}" class="mb-2">
+                                {% csrf_token %}
+                                <button class="btn btn-sm btn-outline-secondary w-100" type="submit">Archivar</button>
+                            </form>
+                            <form method="post" action="{% url 'chatia:conversation_delete' conversation.id %}" onsubmit="return confirm('¿Seguro que quieres borrar esta conversación?');">
+                                {% csrf_token %}
+                                <button class="btn btn-sm btn-outline-danger w-100" type="submit">Borrar</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
             {% empty %}
@@ -34,10 +58,34 @@
                         <span class="d-block fw-semibold">{{ conversation.title }}</span>
                         <small class="note">Archivada · {{ conversation.updated_at|date:'d/m/Y H:i' }}</small>
                     </a>
-                    <form method="post" action="{% url 'chatia:conversation_toggle_archive' conversation.id %}">
-                        {% csrf_token %}
-                        <button class="btn btn-sm btn-outline-primary" type="submit">Restaurar</button>
-                    </form>
+                    <div class="dropdown conversation-menu">
+                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Más acciones">
+                            <span aria-hidden="true">⋯</span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end p-2">
+                            <form method="post" action="{% url 'chatia:conversation_rename' conversation.id %}" class="d-grid gap-2 mb-2">
+                                {% csrf_token %}
+                                <input
+                                    type="text"
+                                    name="title"
+                                    class="form-control form-control-sm"
+                                    value="{{ conversation.title }}"
+                                    maxlength="120"
+                                    autocomplete="off"
+                                    placeholder="Renombrar conversación"
+                                >
+                                <button class="btn btn-sm btn-primary" type="submit">Renombrar</button>
+                            </form>
+                            <form method="post" action="{% url 'chatia:conversation_toggle_archive' conversation.id %}" class="mb-2">
+                                {% csrf_token %}
+                                <button class="btn btn-sm btn-outline-primary w-100" type="submit">Restaurar</button>
+                            </form>
+                            <form method="post" action="{% url 'chatia:conversation_delete' conversation.id %}" onsubmit="return confirm('¿Seguro que quieres borrar esta conversación?');">
+                                {% csrf_token %}
+                                <button class="btn btn-sm btn-outline-danger w-100" type="submit">Borrar</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
             {% empty %}

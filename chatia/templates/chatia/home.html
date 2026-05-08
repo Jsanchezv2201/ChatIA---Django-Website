@@ -8,7 +8,7 @@
         <div class="auth-card card">
             <div class="card-body">
                 <h1 class="card-title">Bienvenido, {{ user.username }}</h1>
-                <p class="card-text">ChatIA ya responde con streaming, guarda conversaciones y mantiene una estructura clara para seguir creciendo por fases.</p>
+                <p class="card-text">ChatIA es una web de chat con login, historial y respuestas en streaming.</p>
                 <div class="d-flex flex-wrap gap-2">
                     <a class="btn btn-primary" href="{% url 'chatia:chats' %}">Ir a chats</a>
                     <form method="post" action="{% url 'chatia:conversation_create' %}">
@@ -20,36 +20,20 @@
         </div>
     </div>
 
-    <div class="col-12 col-lg-7">
-        <div class="auth-card card h-100">
-            <div class="card-body">
+    <div class="col-12 col-lg-6 mx-auto align-self-start">
+        <div class="auth-card card">
+            <div class="card-body p-2 p-md-3">
                 <h2 class="h5">Conversaciones recientes</h2>
                 <div class="list-group list-group-flush">
                     {% for conversation in recent_conversations %}
-                    <a class="list-group-item list-group-item-action" href="{% url 'chatia:conversation_detail' conversation.id %}">
+                    <a class="list-group-item list-group-item-action py-1 px-0" href="{% url 'chatia:conversation_detail' conversation.id %}">
                         <strong>{{ conversation.title }}</strong>
-                        <div class="note">Actualizada el {{ conversation.updated_at|date:'d/m/Y H:i' }}</div>
+                        <div class="note small">Actualizada el {{ conversation.updated_at|date:'d/m/Y H:i' }}</div>
                     </a>
                     {% empty %}
                     <div class="list-group-item">Todavía no tienes conversaciones.</div>
                     {% endfor %}
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-12 col-lg-5">
-        <div class="auth-card card h-100">
-            <div class="card-body">
-                <h2 class="h5">Estado de la práctica</h2>
-                <ul class="mb-0">
-                    <li>Login por sesión activo.</li>
-                    <li>Historial persistente por usuario.</li>
-                    <li>Streaming de tokens en la conversación.</li>
-                    <li>Gestión de conversaciones disponible.</li>
-                    <li>Tests e2e y unitarios pasando.</li>
-                    <li>Despliegue pendiente como siguiente paso.</li>
-                </ul>
             </div>
         </div>
     </div>

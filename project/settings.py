@@ -144,7 +144,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+# URL prefix for static files served by the web server
+STATIC_URL = '/static/'
+# Directory where `collectstatic` will collect static files for production
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+# Additional directories to look for static files (keeps your app-level `static/`)
+STATICFILES_DIRS = [BASE_DIR / 'static']
 
 LOGIN_REDIRECT_URL = 'chatia:home'
 LOGOUT_REDIRECT_URL = 'login'

@@ -48,9 +48,11 @@ load_local_env(BASE_DIR / '.env')
 SECRET_KEY = 'django-insecure-2ooa$qfu6t^e$zp6+!eu+3z3a+ko@d+u01lxuzbbw$79)cg!8o'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['juansv22.pythonanywhere.com']
+
+CSRF_TRUSTED_ORIGINS = ['https://juansv22.pythonanywhere.com']
 
 
 # Application definition

@@ -53,7 +53,7 @@
         {% endif %}
 
         {% if last_conversation %}
-        <div class="mt-4 p-3" style="background: var(--bg-accent, #f0f4f8); border-radius: 8px;">
+        <div class="info-callout info-callout--accent mt-4">
             <strong>Última conversación:</strong> {{ last_conversation.title }}<br>
             <small class="text-muted">{{ last_conversation.updated_at|date:"d/m/Y H:i" }}</small>
         </div>

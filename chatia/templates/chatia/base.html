@@ -40,6 +40,10 @@
                 <a href="{% url 'login' %}" class="{% if current_url_name == 'login' %}active{% endif %}">Entrar</a>
             {% endif %}
             <a href="{% url 'chatia:info' %}" class="{% if current_url_name == 'info' %}active{% endif %}">Ayuda</a>
+            <button type="button" id="theme-toggle" class="theme-toggle" aria-pressed="false" aria-label="Alternar tema">
+                <img id="icon-sun" src="{% static 'chatia/sun-svgrepo-com.svg' %}" alt="Activar modo claro" class="theme-icon" style="width:20px;height:20px;display:none;"> 
+                <img id="icon-moon" src="{% static 'chatia/moon-svgrepo-com.svg' %}" alt="Activar modo oscuro" class="theme-icon" style="width:20px;height:20px;display:none;">
+            </button>
             {% if user.is_authenticated and user.is_staff %}
             <a href="{% url 'admin:index' %}">Admin</a>
             {% endif %}
@@ -89,6 +93,44 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script>
         (function () {
+            var themeKey = 'chatia-theme';
+            var themeToggle = document.getElementById('theme-toggle');
+
+            function applyTheme(theme) {
+                var isDark = theme === 'dark';
+                document.body.classList.toggle('dark-mode', isDark);
+                if (themeToggle) {
+                    themeToggle.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+                    // Mostrar el icono que representa la acción disponible: si estamos en oscuro, mostramos el sol (activar claro)
+                    var iconSun = document.getElementById('icon-sun');
+                    var iconMoon = document.getElementById('icon-moon');
+                    if (iconSun && iconMoon) {
+                        if (isDark) {
+                            iconSun.style.display = '';
+                            iconMoon.style.display = 'none';
+                        } else {
+                            iconSun.style.display = 'none';
+                            iconMoon.style.display = '';
+                        }
+                    }
+                }
+                try {
+                    localStorage.setItem(themeKey, theme);
+                } catch (error) {
+                    // Sin persistencia si el navegador bloquea localStorage.
+                }
+            }
+
+            function getStoredTheme() {
+                try {
+                    return localStorage.getItem(themeKey);
+                } catch (error) {
+                    return null;
+                }
+            }
+
+            applyTheme(getStoredTheme() === 'dark' ? 'dark' : 'light');
+
             // Baja el panel al final para ver el ultimo mensaje.
             function scrollMessagesToBottom(smooth) {
                 var box = document.getElementById('messages');
@@ -128,6 +170,15 @@
             document.addEventListener('DOMContentLoaded', function () {
                 setupEnterToSend();
                 scrollMessagesToBottom(false);
+                // Inicializar el boton de cambio de tema ahora que el DOM existe
+                var themeToggleEl = document.getElementById('theme-toggle');
+                if (themeToggleEl) {
+                    themeToggleEl.addEventListener('click', function () {
+                        applyTheme(document.body.classList.contains('dark-mode') ? 'light' : 'dark');
+                    });
+                    // Asegurar que los iconos se actualicen para el tema actual
+                    applyTheme(getStoredTheme() === 'dark' ? 'dark' : 'light');
+                }
             });
         })();
     </script>

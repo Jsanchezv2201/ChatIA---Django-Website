@@ -25,6 +25,15 @@
     -webkit-appearance: none;
 }
 
+body.dark-mode .composer textarea,
+body.dark-mode .auth-card input,
+body.dark-mode .auth-card textarea,
+body.dark-mode .auth-card select {
+    background: rgba(11, 18, 32, 0.92);
+    color: var(--text);
+    border-color: var(--line);
+}
+
 /* Texto de ayuda dentro de inputs y textarea. */
 .composer textarea::placeholder,
 .auth-card input::placeholder,
@@ -39,6 +48,14 @@
     border-color: rgba(37,99,235,0.38);
     background: #fff;
     box-shadow: 0 0 0 3px rgba(37,99,235,0.1), 0 0 20px rgba(37,99,235,0.05);
+}
+
+body.dark-mode .composer textarea:focus,
+body.dark-mode .auth-card input:focus,
+body.dark-mode .auth-card textarea:focus,
+body.dark-mode .auth-card select:focus {
+    background: rgba(2, 6, 23, 0.98);
+    box-shadow: 0 0 0 3px rgba(96,165,250,0.16), 0 0 20px rgba(59,130,246,0.1);
 }
 
 /* Boton de enviar mas compacto que el boton general. */
@@ -71,6 +88,32 @@
     padding: 2.2rem 2.4rem;
 }
 
+body.dark-mode .auth-card .card-body,
+body.dark-mode .auth-card .list-group-item,
+body.dark-mode .auth-card .metric-card {
+    color: var(--text);
+}
+
+/* En secciones tipo perfil/configuracion/ayuda, usar el mismo tono que el primer bloque correcto. */
+body.dark-mode .auth-card .metric-card,
+body.dark-mode .auth-card .list-group-item,
+body.dark-mode .auth-card .info-callout,
+body.dark-mode .auth-card .info-callout--accent {
+    background: rgba(30, 41, 59, 0.72);
+    border-color: var(--line);
+}
+
+body.dark-mode .auth-card .info-callout--accent {
+    background: rgba(30, 41, 59, 0.72);
+}
+
+body.dark-mode .auth-card .card,
+body.dark-mode .card {
+    background: rgba(17, 24, 39, 0.94);
+    color: var(--text);
+    border-color: var(--line);
+}
+
 /* Titulo principal dentro de una tarjeta. */
 .auth-card h1 {
     margin-top: 0;
@@ -101,6 +144,76 @@
     font-size: 0.88rem;
 }
 
+body.dark-mode .note,
+body.dark-mode .text-muted {
+    color: var(--text-faint) !important;
+}
+
+body.dark-mode .list-group-item {
+    color: var(--text);
+    background: rgba(30, 41, 59, 0.76);
+    border-color: var(--line);
+}
+
+body.dark-mode .list-group-item-action:hover,
+body.dark-mode .list-group-item-action:focus {
+    background: rgba(96, 165, 250, 0.12);
+    color: var(--text);
+}
+
+body.dark-mode .btn-primary {
+    background: linear-gradient(135deg, var(--brand) 0%, var(--brand-strong) 100%);
+    border-color: transparent;
+}
+
+body.dark-mode .btn-outline-secondary,
+body.dark-mode .dropdown-menu {
+    background: rgba(17, 24, 39, 0.96);
+    color: var(--text);
+    border-color: var(--line);
+}
+
+/* Bloques informativos reutilizables para configurar/mostrar ultimas conversaciones. */
+.info-callout {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 1rem 1.05rem;
+    background: rgba(255, 255, 255, 0.8);
+    color: var(--text);
+}
+
+.info-callout--accent {
+    background: rgba(37, 99, 235, 0.07);
+}
+
+body.dark-mode .info-callout {
+    background: var(--surface-soft);
+    border-color: var(--line);
+    color: var(--text);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+body.dark-mode .info-callout--accent {
+    background: rgba(30, 41, 59, 0.86);
+    border-color: rgba(96, 165, 250, 0.22);
+}
+
+body.dark-mode .info-callout strong,
+body.dark-mode .info-callout small,
+body.dark-mode .info-callout .text-muted {
+    color: var(--text) !important;
+}
+
+body.dark-mode .dropdown-item {
+    color: var(--text);
+}
+
+body.dark-mode .dropdown-item:hover,
+body.dark-mode .dropdown-item:focus {
+    background: rgba(96, 165, 250, 0.14);
+    color: var(--text);
+}
+
 /* Indicador de que el modelo esta respondiendo. */
 .loading-indicator {
     display: none;
@@ -117,6 +230,11 @@
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     animation: fadeUp 0.3s ease both;
+}
+
+body.dark-mode .loading-indicator {
+    background: rgba(11, 18, 32, 0.96);
+    color: var(--text);
 }
 
 /* Hace visible el indicador de carga cuando se activa. */

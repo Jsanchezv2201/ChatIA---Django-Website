@@ -11,7 +11,7 @@
     border-bottom: 1px solid var(--line);
     backdrop-filter: blur(24px) saturate(1.4);
     -webkit-backdrop-filter: blur(24px) saturate(1.4);
-    background: rgba(255, 255, 255, 0.82);
+    background: color-mix(in srgb, var(--surface) 82%, transparent);
     box-shadow: 0 1px 0 var(--line), 0 8px 28px rgba(15, 23, 42, 0.06);
 }
 
@@ -49,7 +49,7 @@
     padding: 0.38rem 0.72rem;
     border-radius: 999px;
     border: 1px solid var(--line);
-    background: rgba(37, 99, 235, 0.08);
+    background: var(--surface-hi);
     color: var(--brand);
     font-size: 0.84rem;
     font-weight: 600;
@@ -73,8 +73,9 @@ nav {
 
 /* Boton de logout con aspecto de pastilla. */
 nav a,
-.logout-form button {
-    border: 1px solid transparent;
+.logout-form button,
+.theme-toggle {
+    border: 1px solid var(--line);
     color: var(--text-dim);
     text-decoration: none;
     background: transparent;
@@ -96,9 +97,20 @@ nav a,
 
 /* Estado al pasar el raton por los elementos de navegacion. */
 nav a:hover,
-.logout-form button:hover {
+.logout-form button:hover,
+.theme-toggle:hover {
     color: var(--text);
     border-color: var(--line-strong);
+    background: var(--surface-hi);
+}
+
+.theme-toggle {
+    border-color: var(--line);
+}
+
+.theme-toggle[aria-pressed="true"] {
+    color: var(--brand);
+    border-color: rgba(96, 165, 250, 0.3);
     background: var(--surface-hi);
 }
 
@@ -111,9 +123,22 @@ nav a:hover,
     z-index: 35;
     margin: 0;
     padding: 0.8rem 1.2rem;
-    background: rgba(255, 255, 255, 0.95);
+    background: color-mix(in srgb, var(--surface) 95%, transparent);
     backdrop-filter: blur(12px);
     border-top: 1px solid var(--line);
+}
+
+body.dark-mode .topbar,
+body.dark-mode .site-footer {
+    box-shadow: 0 1px 0 var(--line), 0 10px 28px rgba(0, 0, 0, 0.32);
+}
+
+body.dark-mode .topbar {
+    background: rgba(15, 23, 42, 0.96);
+}
+
+body.dark-mode .site-footer {
+    background: rgba(17, 24, 39, 0.96);
 }
 
 .footer-metrics {
@@ -125,7 +150,7 @@ nav a:hover,
 .metric-card {
     border: 1px solid var(--line);
     border-radius: var(--r-lg);
-    background: rgba(255, 255, 255, 0.78);
+    background: var(--surface);
     padding: 0.95rem 1rem;
     box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
 }
@@ -142,6 +167,15 @@ nav a:hover,
 .metric-card strong {
     color: var(--text);
     font-size: 1rem;
+}
+
+body.dark-mode .metric-card {
+    background: var(--surface-soft);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+}
+
+body.dark-mode .metric-card:nth-child(odd) {
+    background: rgba(30, 41, 59, 0.78);
 }
 
 /* Contenedor principal de la pagina. */
@@ -177,4 +211,33 @@ nav a:hover,
         padding-bottom: 9.5rem;
         /* Más espacio en móvil porque el footer ocupa más */
     }
+}
+
+/* Iconos del toggle de tema: mejorar contraste según tema */
+#icon-sun, #icon-moon {
+    display: none !important; /* inline style en plantilla se sobreescribe con !important */
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+    transition: filter var(--transition), opacity var(--transition);
+}
+
+/* En modo oscuro mostramos el sol (para permitir pasar a claro) y lo hacemos brillante */
+body.dark-mode #icon-sun {
+    display: inline-block !important;
+    /* Mostrar en blanco (SVG tiene trazo en blanco) y añadir un resplandor sutil */
+    filter: drop-shadow(0 0 6px rgba(255,255,255,0.12));
+    opacity: 1;
+}
+body.dark-mode #icon-moon {
+    display: none !important;
+}
+
+/* En modo claro mostramos la luna, pero suavizada (no tan negra) */
+body:not(.dark-mode) #icon-moon {
+    display: inline-block !important;
+    filter: brightness(0.9) saturate(0) opacity(0.9) drop-shadow(0 0 1px rgba(0,0,0,0.06));
+}
+body:not(.dark-mode) #icon-sun {
+    display: none !important;
 }

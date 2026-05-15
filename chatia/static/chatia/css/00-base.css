@@ -22,6 +22,23 @@
     --transition: 0.28s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+body.dark-mode {
+    --bg: #0b1220;
+    --bg-2: #111827;
+    --surface: rgba(17, 24, 39, 0.90);
+    --surface-hi: rgba(96, 165, 250, 0.12);
+    --surface-strong: rgba(15, 23, 42, 0.96);
+    --surface-soft: rgba(30, 41, 59, 0.72);
+    --line: rgba(148, 163, 184, 0.16);
+    --line-strong: rgba(148, 163, 184, 0.28);
+    --text: #e5eefb;
+    --text-dim: #b2c0d6;
+    --text-faint: #8494ad;
+    --brand: #60a5fa;
+    --brand-strong: #3b82f6;
+    --danger: #f87171;
+}
+
 /* Reset minimo para evitar diferencias raras entre navegadores. */
 *, *::before, *::after { box-sizing: border-box; }
 html, body { margin: 0; min-height: 100%; }
@@ -36,6 +53,13 @@ body {
         radial-gradient(ellipse 60% 40% at 95% 5%, rgba(167,139,250,0.1) 0%, transparent 55%),
         radial-gradient(ellipse 50% 60% at 80% 100%, rgba(37,99,235,0.08) 0%, transparent 60%);
     background-attachment: fixed;
+}
+
+body.dark-mode {
+    background-image:
+        radial-gradient(ellipse 80% 50% at 10% -10%, rgba(96,165,250,0.18) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 95% 5%, rgba(168,85,247,0.12) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 60% at 80% 100%, rgba(59,130,246,0.08) 0%, transparent 60%);
 }
 
 /* En chats y perfil no queremos scroll de pagina, solo el de los paneles internos. */
@@ -53,6 +77,10 @@ body::before {
     background-size: 200px 200px;
     pointer-events: none;
     z-index: 0;
+}
+
+body.dark-mode::before {
+    opacity: 0.45;
 }
 
 /* Tipografia para la marca (logo) - mantener Syne */

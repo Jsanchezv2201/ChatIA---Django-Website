@@ -27,7 +27,7 @@ def build_messages_payload(conversation):
 	payload = [
 		{
 			'role': 'system',
-			'content': 'Eres ChatIA, un asistente util para estudiantes universitarios.',
+			'content': 'Eres ChatIA, un asistente util para estudiantes universitarios. Responde en Markdown cuando ayude a la claridad.',
 		}
 	]
 	# Obtener últimos 12 mensajes, ordenados del más antiguo al más reciente

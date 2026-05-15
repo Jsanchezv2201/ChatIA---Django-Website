@@ -265,6 +265,33 @@ class TemplateRenderingTests(TestCase):
 		self.assertEqual(response.status_code, 200)
 		self.assertTemplateUsed(response, 'chatia/info.html')
 
+	def test_markdown_is_rendered_in_message_bubble(self):
+		"""Test: el contenido de los mensajes se renderiza como Markdown."""
+		conversation = Conversation.objects.create(user=self.user, title='Markdown Test')
+		Message.objects.create(
+			conversation=conversation,
+			role=Message.ROLE_ASSISTANT,
+			content='Hola **mundo**',
+		)
+		response = self.client.get(reverse('chatia:conversation_detail', args=[conversation.id]))
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, '<strong>mundo</strong>', html=False)
+
+	def test_conversation_export_markdown_downloads_file(self):
+		"""Test: la exportación devuelve un fichero Markdown descargable."""
+		conversation = Conversation.objects.create(user=self.user, title='Exportable')
+		Message.objects.create(
+			conversation=conversation,
+			role=Message.ROLE_USER,
+			content='Primera linea\n\n**negrita**',
+		)
+		response = self.client.get(reverse('chatia:conversation_export_markdown', args=[conversation.id]))
+		self.assertEqual(response.status_code, 200)
+		self.assertIn('text/markdown', response['Content-Type'])
+		self.assertIn('.md', response['Content-Disposition'])
+		self.assertContains(response, '# Conversación: Exportable', html=False)
+		self.assertContains(response, '**negrita**', html=False)
+
 	def test_footer_appears_in_all_pages(self):
 		"""Test: el footer aparece en todas las páginas."""
 		pages = [

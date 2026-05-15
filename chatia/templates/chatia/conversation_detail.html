@@ -27,7 +27,6 @@
         <header>
             <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
                 <div>
-                    <h2 class="mb-1">{{ conversation.title }}</h2>
                     {% if conversation.is_archived %}
                     <span class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle">Archivada</span>
                     {% endif %}
@@ -37,6 +36,8 @@
                         ⋮
                     </button>
                     <div class="dropdown-menu dropdown-menu-end p-3 shadow-lg">
+                        <a class="dropdown-item rounded-2 mb-2" href="{% url 'chatia:conversation_export_markdown' conversation.id %}">Exportar conversación (.md)</a>
+                        <div class="dropdown-divider"></div>
                         <form method="post" action="{% url 'chatia:conversation_rename' conversation.id %}" class="mb-3">
                             {% csrf_token %}
                             <label class="form-label small text-uppercase text-muted mb-1" for="{{ conversation_title_form.title.id_for_label }}">Renombrar</label>
@@ -85,6 +86,18 @@
 
 <script>
     (function () {
+        // Client-side Markdown rendering: use marked + DOMPurify to safely render model output progressively
+        // Load libraries if not already present (they are small and cached via CDN)
+        if (typeof window.marked === 'undefined') {
+            var sMarked = document.createElement('script');
+            sMarked.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
+            document.head.appendChild(sMarked);
+        }
+        if (typeof window.DOMPurify === 'undefined') {
+            var sPurify = document.createElement('script');
+            sPurify.src = 'https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js';
+            document.head.appendChild(sPurify);
+        }
         function scrollMessagesToBottom(smooth) {
             var box = document.getElementById('messages');
             if (!box) return;
@@ -96,11 +109,17 @@
             article.className = 'bubble ' + role + (role === 'assistant' ? ' streaming' : '');
             var h4 = document.createElement('h4');
             h4.textContent = title;
-            var p = document.createElement('p');
-            p.textContent = content || '';
+            // use a container that can hold rendered HTML (Markdown)
+            var container = document.createElement('div');
+            container.className = 'message-content';
+            // initialize content as text to avoid flashes of HTML until libraries load
+            container.textContent = content || '';
             article.appendChild(h4);
-            article.appendChild(p);
-            return { article: article, paragraph: p };
+            article.appendChild(container);
+            // attach render buffer and timer for progressive rendering
+            container._buffer = content || '';
+            container._renderTimer = null;
+            return { article: article, paragraph: container };
         }
 
         async function streamReply(form) {
@@ -169,11 +188,32 @@
                         }
 
                         if (eventName === 'token' && payload.token) {
-                            assistantBubble.paragraph.textContent += payload.token;
+                            // Append token to buffer and schedule a throttled render
+                            var buf = assistantBubble.paragraph;
+                            buf._buffer = (buf._buffer || '') + payload.token;
+                            // throttle rendering to avoid excessive DOM updates
+                            if (!buf._renderTimer) {
+                                buf._renderTimer = setTimeout(function () {
+                                    try {
+                                        if (window.marked && window.DOMPurify) {
+                                            var raw = buf._buffer || '';
+                                            var html = window.marked.parse ? window.marked.parse(raw) : window.marked(raw);
+                                            buf.innerHTML = window.DOMPurify.sanitize(html);
+                                        } else {
+                                            // fallback: simple newline -> <br>
+                                            buf.innerHTML = (buf._buffer || '').replace(/\n/g, '<br>');
+                                        }
+                                    } catch (e) {
+                                        buf.textContent = buf._buffer || '';
+                                    }
+                                    buf._renderTimer = null;
+                                }, 120);
+                            }
                             scrollMessagesToBottom(true);
                         }
 
                         if (eventName === 'error' && payload.message) {
+                            // show error as plain text
                             assistantBubble.paragraph.textContent = payload.message;
                             assistantBubble.article.classList.remove('streaming');
                             scrollMessagesToBottom(true);
@@ -182,7 +222,13 @@
                         if (eventName === 'done') {
                             // Marcar el bubble como terminado (sin clase 'streaming')
                             assistantBubble.article.classList.remove('streaming');
-                            // No hacer scroll adicional ya que se hizo durante el streaming
+                            if (payload.html) {
+                                // Replace messages HTML but ensure we scroll to bottom afterwards
+                                messages.outerHTML = payload.html;
+                                messages = document.getElementById('messages');
+                            }
+                            // Garantizar que nos quedamos al fondo después del render final
+                            try { scrollMessagesToBottom(true); } catch (e) { /* ignore */ }
                         }
                     });
                 }

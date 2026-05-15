@@ -1,3 +1,4 @@
+{% load markdown_filters %}
 <div id="messages" class="messages-box">
     {% if error %}
     <p class="error">{{ error }}</p>
@@ -6,7 +7,7 @@
     {% for message in conversation.messages.all %}
     <article class="bubble {{ message.role }}">
         <h4>{% if message.role == 'user' %}Tu{% elif message.role == 'assistant' %}ChatIA{% else %}Sistema{% endif %}</h4>
-        <p>{{ message.content|linebreaksbr }}</p>
+        <div class="message-content">{{ message.content|render_markdown }}</div>
         <small>{{ message.created_at|date:'d/m/Y H:i' }}</small>
     </article>
     {% empty %}

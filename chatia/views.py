@@ -1,14 +1,16 @@
 import json
 
 from django.conf import settings
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.http import StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.views.decorators.http import require_GET, require_POST
+from django.utils.text import slugify
 
 from .forms import ConversationTitleForm, PromptForm
+from .markdown_tools import conversation_to_markdown
 from .models import Conversation, Message, UserPreference
 from .services import ask_llm
 from .services import ask_llm_stream
@@ -89,6 +91,18 @@ def conversation_delete(request, conversation_id):
 	conversation = get_object_or_404(Conversation, id=conversation_id, user=request.user)
 	conversation.delete()
 	return redirect('chatia:chats')
+
+
+@login_required
+@require_GET
+def conversation_export_markdown(request, conversation_id):
+	conversation = get_object_or_404(Conversation, id=conversation_id, user=request.user)
+	markdown_text = conversation_to_markdown(conversation)
+	filename_slug = slugify(conversation.title)[:40] or 'conversacion'
+	filename = f'chatia-conversacion-{conversation.id}-{filename_slug}.md'
+	response = HttpResponse(markdown_text, content_type='text/markdown; charset=utf-8')
+	response['Content-Disposition'] = f'attachment; filename="{filename}"'
+	return response
 
 
 @login_required

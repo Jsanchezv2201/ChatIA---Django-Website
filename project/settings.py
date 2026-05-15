@@ -48,9 +48,12 @@ load_local_env(BASE_DIR / '.env')
 SECRET_KEY = 'django-insecure-2ooa$qfu6t^e$zp6+!eu+3z3a+ko@d+u01lxuzbbw$79)cg!8o'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+# For local development we enable DEBUG so Django serves static files
+# and error pages are easier to inspect. Remember to set DEBUG=False
+# before deploying to production.
+DEBUG = True
 
-ALLOWED_HOSTS = ['juansv22.pythonanywhere.com']
+ALLOWED_HOSTS = ['juansv22.pythonanywhere.com', 'localhost', '127.0.0.1', '[::1]']
 
 CSRF_TRUSTED_ORIGINS = ['https://juansv22.pythonanywhere.com']
 

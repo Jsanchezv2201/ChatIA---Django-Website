@@ -210,6 +210,60 @@
     font-size: 0.94rem;
 }
 
+/* Markdown renderizado dentro del contenido del mensaje. */
+.bubble .message-content {
+    margin: 0 0 0.45rem;
+    line-height: 1.6;
+    font-size: 0.94rem;
+    white-space: normal;
+}
+
+.bubble .message-content > :first-child { margin-top: 0; }
+.bubble .message-content > :last-child { margin-bottom: 0; }
+.bubble .message-content p { margin: 0 0 0.75rem; }
+.bubble .message-content ul,
+.bubble .message-content ol {
+    margin: 0.35rem 0 0.85rem 1.2rem;
+    padding-left: 1.1rem;
+}
+.bubble .message-content li + li { margin-top: 0.2rem; }
+.bubble .message-content a { color: var(--brand); text-decoration: underline; }
+.bubble .message-content code {
+    padding: 0.12rem 0.35rem;
+    border-radius: 0.35rem;
+    background: rgba(15, 23, 42, 0.06);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+    font-size: 0.9em;
+}
+.bubble .message-content pre {
+    margin: 0.45rem 0 0.8rem;
+    padding: 0.85rem 0.95rem;
+    border-radius: 0.85rem;
+    overflow-x: auto;
+    background: rgba(15, 23, 42, 0.06);
+}
+.bubble .message-content pre code {
+    padding: 0;
+    background: transparent;
+}
+.bubble .message-content blockquote {
+    margin: 0.5rem 0 0.85rem;
+    padding-left: 0.95rem;
+    border-left: 3px solid var(--line-strong);
+    color: var(--text-dim);
+}
+.bubble .message-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.5rem 0 0.85rem;
+}
+.bubble .message-content th,
+.bubble .message-content td {
+    border: 1px solid var(--line);
+    padding: 0.45rem 0.65rem;
+    text-align: left;
+}
+
 /* Marca de fecha y hora. */
 .bubble small {
     color: var(--text-faint);

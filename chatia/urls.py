@@ -15,6 +15,7 @@ urlpatterns = [
     path('conversations/<int:conversation_id>/rename/', views.conversation_rename, name='conversation_rename'),
     path('conversations/<int:conversation_id>/archive-toggle/', views.conversation_toggle_archive, name='conversation_toggle_archive'),
     path('conversations/<int:conversation_id>/delete/', views.conversation_delete, name='conversation_delete'),
+    path('conversations/<int:conversation_id>/export/md/', views.conversation_export_markdown, name='conversation_export_markdown'),
     path(
         'conversations/<int:conversation_id>/send-stream/',
         views.send_message_stream,

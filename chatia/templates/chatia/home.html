@@ -3,7 +3,7 @@
 {% block title %}Inicio | ChatIA{% endblock %}
 
 {% block content %}
-<section class="row g-3">
+<section class="row g-2 home-stack">
     <div class="col-12">
         <div class="auth-card card">
             <div class="card-body">
@@ -23,8 +23,8 @@
     <div class="col-12 col-lg-6 mx-auto align-self-start">
         <div class="auth-card card">
             <div class="card-body p-2 p-md-3">
-                <h2 class="h5">Conversaciones recientes</h2>
-                <div class="list-group list-group-flush">
+                <h2 class="h5 mb-4">Conversaciones recientes</h2>
+                <div class="list-group list-group-flush mt-3">
                     {% for conversation in recent_conversations %}
                     <a class="list-group-item list-group-item-action py-1 px-0" href="{% url 'chatia:conversation_detail' conversation.id %}">
                         <strong>{{ conversation.title }}</strong>

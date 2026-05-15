@@ -52,12 +52,7 @@
             <p class="text-muted">No hay conversaciones aún. <a href="{% url 'chatia:conversation_create' %}">Crea una</a>.</p>
         {% endif %}
 
-        {% if last_conversation %}
-        <div class="info-callout info-callout--accent mt-4">
-            <strong>Última conversación:</strong> {{ last_conversation.title }}<br>
-            <small class="text-muted">{{ last_conversation.updated_at|date:"d/m/Y H:i" }}</small>
-        </div>
-        {% endif %}
+        {# Eliminado: bloque redundante de "Última conversación" — las últimas ya aparecen arriba #}
     </div>
 </section>
 {% endblock %}

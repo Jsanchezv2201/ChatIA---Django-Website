@@ -127,6 +127,23 @@
             return { article: article, paragraph: container };
         }
 
+        function renderBubbleContent(buf) {
+            if (!buf) return;
+            try {
+                if (window.marked && window.DOMPurify) {
+                    var raw = decodeHTMLEntities(buf._buffer || '');
+                    var html = window.marked.parse ? window.marked.parse(raw) : window.marked(raw);
+                    buf.innerHTML = window.DOMPurify.sanitize(html);
+                } else {
+                    // fallback: simple newline -> <br>
+                    buf.innerHTML = (buf._buffer || '').replace(/\n/g, '<br>');
+                }
+            } catch (e) {
+                buf.textContent = buf._buffer || '';
+            }
+            buf._renderTimer = null;
+        }
+
         async function streamReply(form) {
             var streamUrl = form.dataset.streamUrl;
             var messages = document.getElementById('messages');
@@ -144,7 +161,7 @@
                 submitButton.textContent = 'Enviando...';
             }
 
-            var userBubble = createBubble('user', 'Tu', prompt);
+            var userBubble = createBubble('user', 'Tú', prompt);
             var assistantBubble = createBubble('assistant', 'ChatIA', '');
             messages.appendChild(userBubble.article);
             messages.appendChild(assistantBubble.article);
@@ -199,19 +216,7 @@
                             // throttle rendering to avoid excessive DOM updates
                             if (!buf._renderTimer) {
                                 buf._renderTimer = setTimeout(function () {
-                                    try {
-                                        if (window.marked && window.DOMPurify) {
-                                            var raw = decodeHTMLEntities(buf._buffer || '');
-                                            var html = window.marked.parse ? window.marked.parse(raw) : window.marked(raw);
-                                            buf.innerHTML = window.DOMPurify.sanitize(html);
-                                        } else {
-                                            // fallback: simple newline -> <br>
-                                            buf.innerHTML = (buf._buffer || '').replace(/\n/g, '<br>');
-                                        }
-                                    } catch (e) {
-                                        buf.textContent = buf._buffer || '';
-                                    }
-                                    buf._renderTimer = null;
+                                    renderBubbleContent(buf);
                                 }, 120);
                             }
                             scrollMessagesToBottom(true);
@@ -227,11 +232,9 @@
                         if (eventName === 'done') {
                             // Marcar el bubble como terminado (sin clase 'streaming')
                             assistantBubble.article.classList.remove('streaming');
-                            if (payload.html) {
-                                // Replace messages HTML but ensure we scroll to bottom afterwards
-                                messages.outerHTML = payload.html;
-                                messages = document.getElementById('messages');
-                            }
+                            // Evitar reemplazar todo el contenedor: eso resetea el scroll visual al inicio.
+                            // Solo forzamos el render final del último mensaje en el mismo DOM.
+                            renderBubbleContent(assistantBubble.paragraph);
                             // Garantizar que nos quedamos al fondo después del render final
                             try { scrollMessagesToBottom(true); } catch (e) { /* ignore */ }
                         }

@@ -176,6 +176,8 @@ body.dark-mode .sidebar a.active {
     height: calc(100dvh - 13.5rem);
     min-height: 0;
     overflow: hidden;
+    border: 1px solid var(--line-strong);
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.06);
 }
 
 /* Caja con scroll donde se pintan los mensajes. */
@@ -184,7 +186,7 @@ body.dark-mode .sidebar a.active {
     min-height: 0;
     max-height: none;
     overflow-y: auto;
-    border: 1px solid var(--line);
+    border: 1px solid var(--line-strong);
     border-radius: var(--r-lg);
     padding: 1.1rem;
     background: rgba(248, 250, 252, 0.95);
@@ -195,6 +197,12 @@ body.dark-mode .sidebar a.active {
 
 body.dark-mode .messages-box {
     background: rgba(11, 18, 32, 0.92);
+    border-color: rgba(148, 163, 184, 0.24);
+}
+
+body.dark-mode .chat-panel {
+    border-color: rgba(148, 163, 184, 0.22);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
 }
 
 /* Scrollbar discreta para no distraer del contenido. */
@@ -234,12 +242,15 @@ body.dark-mode .bubble.user {
 /* Respuestas del asistente con estilo mas neutro. */
 .bubble.assistant {
     margin-right: 10%;
-    border-color: var(--line);
+    border-color: var(--line-strong);
     background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
 }
 
 body.dark-mode .bubble.assistant {
+    border-color: rgba(148, 163, 184, 0.28);
     background: rgba(17, 24, 39, 0.96);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.18);
 }
 
 /* Mensajes de sistema o avisos internos. */
@@ -270,7 +281,12 @@ body.dark-mode .bubble h4 {
 
 /* Color diferenciado para quien escribe el mensaje. */
 .bubble.user h4 { color: rgba(79,143,255,0.7); }
+.bubble.assistant h4 { color: rgba(167,139,250,0.88); }
 .bubble.system h4 { color: rgba(167,139,250,0.7); }
+
+body.dark-mode .bubble.assistant h4 {
+    color: rgba(196, 181, 253, 0.95);
+}
 
 /* Texto del mensaje: conserva saltos de linea. */
 .bubble p {

@@ -26,3 +26,26 @@ class ConversationTitleForm(forms.Form):
             }
         ),
     )
+
+
+class UserPreferenceForm(forms.Form):
+    llm_model = forms.CharField(
+        label='Modelo preferido',
+        max_length=200,
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+    )
+    llm_max_tokens = forms.IntegerField(
+        label='Tokens máximos personales',
+        min_value=64,
+        max_value=65536,
+        required=False,
+        widget=forms.NumberInput(attrs={'class': 'form-control'}),
+    )
+    llm_temperature = forms.FloatField(
+        label='Temperatura (0.0 - 2.0)',
+        min_value=0.0,
+        max_value=2.0,
+        required=False,
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '0.1'}),
+    )

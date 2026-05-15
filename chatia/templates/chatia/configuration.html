@@ -37,23 +37,24 @@
         </div>
 
         <h2 class="h5 mt-4 mb-3">Preferencias personales</h2>
-        <div class="row g-3">
+        <form method="post" class="row g-3">
+            {% csrf_token %}
             <div class="col-md-6">
                 <div class="metric-card h-100">
                     <span class="metric-label">Modelo preferido</span>
-                    <strong>{{ user_preference.llm_model }}</strong>
+                    {{ form.llm_model }}
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="metric-card h-100">
                     <span class="metric-label">Tokens máximos personales</span>
-                    <strong>{{ user_preference.llm_max_tokens }}</strong>
+                    {{ form.llm_max_tokens }}
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="metric-card h-100">
                     <span class="metric-label">Temperatura (creatividad)</span>
-                    <strong>{{ user_preference.llm_temperature }}</strong>
+                    {{ form.llm_temperature }}
                 </div>
             </div>
             <div class="col-md-6">
@@ -62,11 +63,10 @@
                     <small class="text-muted">{{ user_preference.updated_at|date:"d/m/Y H:i" }}</small>
                 </div>
             </div>
-        </div>
-
-        <div class="info-callout mt-4">
-            <strong>Nota:</strong> Estas preferencias personales están guardadas en tu perfil. En próximas versiones podrás editarlas desde aquí mediante un formulario. Por ahora son de solo lectura.
-        </div>
+            <div class="col-12 mt-3">
+                <button class="btn btn-primary" type="submit">Guardar preferencias</button>
+            </div>
+        </form>
     </div>
 </section>
 {% endblock %}

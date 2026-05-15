@@ -6,7 +6,7 @@
 
     {% for message in conversation.messages.all %}
     <article class="bubble {{ message.role }}">
-        <h4>{% if message.role == 'user' %}Tu{% elif message.role == 'assistant' %}ChatIA{% else %}Sistema{% endif %}</h4>
+        <h4>{% if message.role == 'user' %}Tú{% elif message.role == 'assistant' %}ChatIA{% else %}Sistema{% endif %}</h4>
         <div class="message-content">{{ message.content|render_markdown }}</div>
         <small>{{ message.created_at|date:'d/m/Y H:i' }}</small>
     </article>

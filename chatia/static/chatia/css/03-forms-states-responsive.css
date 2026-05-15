@@ -25,6 +25,12 @@
     -webkit-appearance: none;
 }
 
+/* El cuadro de escribir mensaje debe destacar un poco más que el resto de inputs. */
+.composer textarea {
+    border-color: var(--line-strong);
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+}
+
 body.dark-mode .composer textarea,
 body.dark-mode .auth-card input,
 body.dark-mode .auth-card textarea,
@@ -32,6 +38,11 @@ body.dark-mode .auth-card select {
     background: rgba(11, 18, 32, 0.92);
     color: var(--text);
     border-color: var(--line);
+}
+
+body.dark-mode .composer textarea {
+    border-color: rgba(148, 163, 184, 0.32);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
 }
 
 /* Texto de ayuda dentro de inputs y textarea. */
@@ -86,6 +97,16 @@ body.dark-mode .auth-card select:focus {
     max-width: 680px;
     margin: 3.5rem auto;
     padding: 2.2rem 2.4rem;
+}
+
+/* En portada, acercar el bloque de bienvenida y el de conversaciones recientes. */
+.home-stack .auth-card {
+    margin-top: 1.25rem;
+    margin-bottom: 1.25rem;
+}
+
+.home-stack .auth-card:first-child {
+    margin-top: 0.5rem;
 }
 
 body.dark-mode .auth-card .card-body,
@@ -155,10 +176,19 @@ body.dark-mode .list-group-item {
     border-color: var(--line);
 }
 
+body.dark-mode .home-stack .list-group-item {
+    background: rgba(17, 24, 39, 0.94);
+}
+
 body.dark-mode .list-group-item-action:hover,
 body.dark-mode .list-group-item-action:focus {
     background: rgba(96, 165, 250, 0.12);
     color: var(--text);
+}
+
+body.dark-mode .home-stack .list-group-item-action:hover,
+body.dark-mode .home-stack .list-group-item-action:focus {
+    background: rgba(17, 24, 39, 0.98);
 }
 
 body.dark-mode .btn-primary {

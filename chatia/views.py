@@ -292,13 +292,39 @@ def conversations_partial(request):
 
 
 @login_required
-@require_GET
 def configuration(request):
+	"""Mostrar y actualizar las preferencias personales del usuario (GET/POST).
+
+	Las preferencias globales del servidor se muestran en lectura.
+	"""
 	user_pref, created = UserPreference.objects.get_or_create(user=request.user)
+	from .forms import UserPreferenceForm
+
+	if request.method == 'POST':
+		form = UserPreferenceForm(request.POST)
+		if form.is_valid():
+			user_pref.llm_model = form.cleaned_data.get('llm_model') or user_pref.llm_model
+			llm_max_tokens = form.cleaned_data.get('llm_max_tokens')
+			if llm_max_tokens:
+				user_pref.llm_max_tokens = llm_max_tokens
+			llm_temperature = form.cleaned_data.get('llm_temperature')
+			if llm_temperature is not None:
+				user_pref.llm_temperature = llm_temperature
+			user_pref.save()
+			return redirect('chatia:configuration')
+	else:
+		initial = {
+			'llm_model': user_pref.llm_model,
+			'llm_max_tokens': user_pref.llm_max_tokens,
+			'llm_temperature': user_pref.llm_temperature,
+		}
+		form = UserPreferenceForm(initial=initial)
+
 	context = {
 		'llm_base_url': settings.LLM_BASE_URL,
 		'llm_model': settings.LLM_MODEL,
 		'llm_max_tokens': settings.LLM_MAX_TOKENS,
 		'user_preference': user_pref,
+		'form': form,
 	}
 	return render(request, 'chatia/configuration.html', context)

@@ -45,6 +45,12 @@
     padding: 0;
     display: grid;
     gap: 0.35rem;
+    margin-top: 0.5rem;
+}
+
+/* Separacion adicional entre el boton de nueva conversacion y la lista */
+.sidebar .primary {
+    margin-bottom: 0.9rem;
 }
 
 /* Cada enlace de conversacion dentro de la barra lateral. */

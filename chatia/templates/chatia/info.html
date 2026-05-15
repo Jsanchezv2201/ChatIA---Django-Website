@@ -9,25 +9,25 @@
         <p class="note">Resumen del funcionamiento general, estructura y créditos del proyecto.</p>
 
         <div class="row g-3">
-            <div class="col-lg-6">
-                <div class="metric-card h-100">
+            <div class="col-12">
+                <div class="metric-card">
                     <span class="metric-label">Cómo funciona</span>
-                    <strong>Login, chats persistentes y streaming de respuesta</strong>
-                    <p class="mb-0 mt-2">El usuario entra con su sesión, crea conversaciones y envía prompts al modelo LLM para recibir respuestas guardadas en el historial.</p>
+                    <strong>Chat con LLM y streaming en tiempo real</strong>
+                    <p class="mb-0 mt-2">Los usuarios inician sesión, crean y gestionan conversaciones. Cada prompt se envía al servicio de LLM y la respuesta se muestra progresivamente mediante streaming (SSE), permitiendo ver la generación en tiempo real. Todas las conversaciones y mensajes se guardan en la base de datos para consultar el historial y exportarlo si se desea.</p>
                 </div>
             </div>
-            <div class="col-lg-6">
-                <div class="metric-card h-100">
+            <div class="col-12">
+                <div class="metric-card">
                     <span class="metric-label">Estructura</span>
-                    <strong>Plantillas Django + CSS modular</strong>
-                    <p class="mb-0 mt-2">La interfaz se divide en base, navegación, layout de chat y formularios/responsive para mantener una evolución por fases.</p>
+                    <strong>Arquitectura Django y CSS modular</strong>
+                    <p class="mb-0 mt-2">La aplicación está organizada en capas: vistas y servicios que gestionan la lógica y la integración con el LLM, plantillas Django reutilizables y hojas de estilo modulares (<code>00-base</code>, <code>01-shell-nav</code>, <code>02-layout-chat</code>, ...). También hay endpoints HTMX/JSON y utilidades para exportación y streaming.</p>
                 </div>
             </div>
             <div class="col-12">
                 <div class="metric-card">
                     <span class="metric-label">Créditos</span>
-                    <strong>Proyecto desarrollado como práctica de ChatIA</strong>
-                    <p class="mb-0 mt-2">Repositorio y evolución pensados para seguir el enunciado del curso, con una implementación propia y documentada por fases.</p>
+                    <strong>Juan Sánchez Vinuesa — Proyecto final (Servicios Telemáticos 2025/2026)</strong>
+                    <p class="mb-0 mt-2">Desarrollado por Juan Sánchez Vinuesa como proyecto final para la asignatura <em>Servicios Telemáticos</em> (curso 2025/2026). Incluye chat con LLM, streaming de respuestas, exportación a Markdown y diseño pensado para despliegue en entornos tipo PythonAnywhere.</p>
                 </div>
             </div>
         </div>

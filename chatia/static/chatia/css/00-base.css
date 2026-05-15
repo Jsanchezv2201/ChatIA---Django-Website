@@ -55,9 +55,22 @@ body::before {
     z-index: 0;
 }
 
-/* Tipografia principal para titulos y marca. */
-h1, h2, h3, h4, .brand {
+/* Tipografia para la marca (logo) - mantener Syne */
+.brand {
     font-family: "Syne", sans-serif;
     letter-spacing: -0.025em;
-    font-weight: 700;
+    font-weight: 800;
 }
+
+/* Titulos: usar la tipografia principal (DM Sans) y tamaños más contenidos */
+h1, h2, h3, h4 {
+    font-family: "DM Sans", system-ui, sans-serif;
+    letter-spacing: 0;
+    font-weight: 600;
+    margin: 0 0 0.6rem;
+}
+
+h1 { font-size: 1.5rem; }
+h2 { font-size: 1.25rem; }
+h3 { font-size: 1.05rem; }
+h4 { font-size: 0.95rem; }

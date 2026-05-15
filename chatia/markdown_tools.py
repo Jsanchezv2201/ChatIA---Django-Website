@@ -1,5 +1,10 @@
 import html
 
+try:
+	import bleach
+except Exception:
+	bleach = None
+
 from django.utils.timezone import localtime, now
 
 try:
@@ -11,17 +16,36 @@ except ImportError:  # pragma: no cover - fallback defensivo si falta la depende
 def render_markdown_html(text):
 	"""Renderiza texto Markdown a HTML seguro para mostrarse en pantalla."""
 	raw_text = text or ''
-	escaped_text = html.escape(raw_text)
+	# Decodificar entidades HTML si las hubiera (p. ej. &quot;, &lt;, &gt;)
+	unescaped = html.unescape(raw_text)
+
 	if markdown_lib is None:
-		paragraphs = [part.replace('\n', '<br>') for part in escaped_text.split('\n\n') if part.strip()]
+		# Fallback: escapar y convertir saltos de linea simples en <br>
+		escaped = html.escape(unescaped)
+		paragraphs = [part.replace('\n', '<br>') for part in escaped.split('\n\n') if part.strip()]
 		if not paragraphs:
 			return '<p></p>'
 		return ''.join(f'<p>{paragraph}</p>' for paragraph in paragraphs)
-	return markdown_lib.markdown(
-		escaped_text,
+
+	# Convertir Markdown -> HTML usando la libreria
+	html_out = markdown_lib.markdown(
+		unescaped,
 		extensions=['fenced_code', 'tables', 'sane_lists'],
 		output_format='html5',
 	)
+
+	# Si bleach está disponible, sanitizar el HTML resultante
+	if bleach is not None:
+		allowed_tags = set(bleach.sanitizer.ALLOWED_TAGS) | {
+			'p', 'pre', 'code', 'table', 'thead', 'tbody', 'tr', 'th', 'td',
+			'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'strong', 'em', 'a', 'blockquote'
+		}
+		allowed_attrs = {
+			'a': ['href', 'title', 'rel', 'target']
+		}
+		html_out = bleach.clean(html_out, tags=allowed_tags, attributes=allowed_attrs, strip=True)
+
+	return html_out
 
 
 def conversation_to_markdown(conversation):

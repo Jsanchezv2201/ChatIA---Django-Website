@@ -103,6 +103,12 @@
             box.scrollTo({ top: box.scrollHeight, behavior: smooth ? 'smooth' : 'auto' });
         }
 
+        function decodeHTMLEntities(str) {
+            var txt = document.createElement('textarea');
+            txt.innerHTML = str;
+            return txt.value;
+        }
+
         function createBubble(role, title, content) {
             var article = document.createElement('article');
             article.className = 'bubble ' + role + (role === 'assistant' ? ' streaming' : '');
@@ -195,7 +201,7 @@
                                 buf._renderTimer = setTimeout(function () {
                                     try {
                                         if (window.marked && window.DOMPurify) {
-                                            var raw = buf._buffer || '';
+                                            var raw = decodeHTMLEntities(buf._buffer || '');
                                             var html = window.marked.parse ? window.marked.parse(raw) : window.marked(raw);
                                             buf.innerHTML = window.DOMPurify.sanitize(html);
                                         } else {

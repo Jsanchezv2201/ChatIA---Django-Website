@@ -87,6 +87,13 @@ nav a,
     transition: color var(--transition), background var(--transition), border-color var(--transition);
 }
 
+/* Resaltar la sección activa en la navegación superior. */
+.site-menu a.active {
+    color: var(--brand);
+    background: transparent;
+    border-bottom: 2px solid rgba(37,99,235,0.18);
+}
+
 /* Estado al pasar el raton por los elementos de navegacion. */
 nav a:hover,
 .logout-form button:hover {

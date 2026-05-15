@@ -38,6 +38,12 @@ body {
     background-attachment: fixed;
 }
 
+/* En chats y perfil no queremos scroll de pagina, solo el de los paneles internos. */
+body.no-page-scroll {
+    height: 100dvh;
+    overflow: hidden;
+}
+
 /* Ruido visual muy suave para que el fondo no quede plano. */
 body::before {
     content: '';

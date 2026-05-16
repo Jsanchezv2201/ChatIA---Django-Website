@@ -38,11 +38,11 @@ def get_user_llm_model_label(user_pref):
 def get_user_llm_model_options():
 	return settings.LLM_MODEL_CATALOG
 
-
-@login_required
 @require_GET
 def home(request):
-	recent_conversations = request.user.conversations.filter(is_archived=False)[:4]
+	recent_conversations = []
+	if request.user.is_authenticated:
+		recent_conversations = request.user.conversations.filter(is_archived=False)[:4]
 	return render(
 		request,
 		'chatia/home.html',

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
 from django.urls import reverse
@@ -21,11 +22,11 @@ class AuthenticationTests(TestCase):
 			password='testpass123'
 		)
 
-	def test_home_requires_login(self):
-		"""Test: acceso a home sin autenticación redirige a login."""
+	def test_home_is_public(self):
+		"""Test: la página principal es accesible sin autenticación."""
 		response = self.client.get(reverse('chatia:home'))
-		self.assertEqual(response.status_code, 302)
-		self.assertIn('/accounts/login/', response.url)
+		self.assertEqual(response.status_code, 200)
+		self.assertTemplateUsed(response, 'chatia/home.html')
 
 	def test_authenticated_user_can_access_home(self):
 		"""Test: usuario autenticado puede acceder a home."""
@@ -154,6 +155,60 @@ class MessageTests(TestCase):
 		self.assertEqual(Message.objects.filter(
 			conversation=self.conversation
 		).count(), 0)
+
+	@patch('chatia.views.ask_llm_stream')
+	def test_send_message_stream_returns_sse_events(self, mock_ask_llm_stream):
+		"""Test: el endpoint de streaming devuelve eventos SSE con token y done."""
+		mock_ask_llm_stream.return_value = iter(['Hola ', 'mundo'])
+		response = self.client.post(
+			reverse('chatia:send_message_stream', args=[self.conversation.id]),
+			{'prompt': 'Hazme un saludo'}
+		)
+
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(response['Content-Type'], 'text/event-stream')
+		body = b''.join(response.streaming_content).decode('utf-8')
+		self.assertIn('event: token', body)
+		self.assertIn('Hola ', body)
+		self.assertIn('event: done', body)
+		self.assertEqual(Message.objects.filter(conversation=self.conversation, role=Message.ROLE_USER).count(), 1)
+		self.assertEqual(Message.objects.filter(conversation=self.conversation, role=Message.ROLE_ASSISTANT).count(), 1)
+
+	def test_message_feedback_ajax_saves_vote(self):
+		"""Test: el feedback por AJAX guarda la valoración del usuario."""
+		assistant_message = Message.objects.create(
+			conversation=self.conversation,
+			role=Message.ROLE_ASSISTANT,
+			content='Respuesta del asistente'
+		)
+		response = self.client.post(
+			reverse('chatia:message_feedback', args=[assistant_message.id]),
+			{'value': 'up'},
+			HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+		)
+
+		self.assertEqual(response.status_code, 200)
+		payload = json.loads(response.content)
+		self.assertTrue(payload['ok'])
+		self.assertEqual(payload['value'], 'up')
+		self.assertEqual(payload['label'], 'Útil')
+		self.assertEqual(assistant_message.feedbacks.filter(user=self.user, value='up').count(), 1)
+
+	def test_conversation_set_model_ajax_updates_database(self):
+		"""Test: el selector de modelo por conversación se guarda en BD."""
+		selected_model = settings.LLM_MODEL_CATALOG[0]['value']
+		response = self.client.post(
+			reverse('chatia:conversation_set_model', args=[self.conversation.id]),
+			{'llm_model': selected_model},
+			HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+		)
+
+		self.assertEqual(response.status_code, 200)
+		payload = json.loads(response.content)
+		self.assertTrue(payload['ok'])
+		self.assertEqual(payload['llm_model'], selected_model)
+		self.conversation.refresh_from_db()
+		self.assertEqual(self.conversation.llm_model, selected_model)
 
 
 class APITests(TestCase):

@@ -16,6 +16,8 @@ from .models import Conversation, Message, MessageFeedback, UserPreference
 from .services import ask_llm
 from .services import ask_llm_stream
 from django.utils.timezone import localtime
+from django.contrib.auth import views as auth_views
+from django.shortcuts import render
 
 
 def conversation_messages_with_feedback(conversation, user):
@@ -389,6 +391,42 @@ def api_statistics(request):
 
 @login_required
 @require_GET
+def api_conversation_detail(request, conversation_id):
+	"""Devuelve JSON con la conversación completa (metadatos y mensajes).
+
+	Requiere que el usuario sea el propietario de la conversación.
+	"""
+	conversation = get_object_or_404(Conversation, id=conversation_id, user=request.user)
+	messages = [
+		{
+			'id': m.id,
+			'role': m.role,
+			'content': m.content,
+			'created_at': localtime(m.created_at).isoformat(),
+		}
+		for m in conversation.messages.order_by('created_at')
+	]
+
+	try:
+		pref = getattr(conversation.user, 'preference', None)
+		username_display = pref.alias if pref and pref.alias else conversation.user.username
+	except Exception:
+		username_display = conversation.user.username
+
+	data = {
+		'id': conversation.id,
+		'title': conversation.title,
+		'user': username_display,
+		'is_archived': conversation.is_archived,
+		'created_at': localtime(conversation.created_at).isoformat(),
+		'updated_at': localtime(conversation.updated_at).isoformat(),
+		'messages': messages,
+	}
+	return JsonResponse(data)
+
+
+@login_required
+@require_GET
 def conversations_partial(request):
 	"""Devuelve un fragmento HTML con las conversaciones del usuario (usado por HTMX).
 
@@ -464,3 +502,18 @@ def configuration(request):
 		'form': form,
 	}
 	return render(request, 'chatia/configuration.html', context)
+
+
+class CustomLoginView(auth_views.LoginView):
+	"""LoginView que devuelve 401 cuando las credenciales son inválidas.
+
+	Por defecto Django responde con 200 y muestra los errores. Aquí
+	overrideamos `form_invalid` para renderizar la misma plantilla pero
+	con `status=401`.
+	"""
+	template_name = 'registration/login.html'
+
+	def form_invalid(self, form):
+		# Reuse parent context rendering but force HTTP 401
+		context = self.get_context_data(form=form)
+		return render(self.request, self.template_name, context, status=401)

@@ -328,6 +328,32 @@ class ConfigurationTests(TestCase):
 		self.assertTrue(UserPreference.objects.filter(user=self.user).exists())
 
 
+class AuthTests(TestCase):
+	def test_failed_login_returns_401(self):
+		"""Si las credenciales son inválidas, el login debe devolver 401."""
+		login_url = reverse('login')
+		resp = self.client.post(login_url, {'username': 'nope', 'password': 'wrong'})
+		self.assertEqual(resp.status_code, 401)
+
+
+class ApiConversationTests(TestCase):
+	def setUp(self):
+		self.user = User.objects.create_user(username='alice', password='pass')
+		self.client.login(username='alice', password='pass')
+		self.conv = Conversation.objects.create(user=self.user, title='Test conv')
+		Message.objects.create(conversation=self.conv, role=Message.ROLE_USER, content='Hola')
+		Message.objects.create(conversation=self.conv, role=Message.ROLE_ASSISTANT, content='Hola, soy ChatIA')
+
+	def test_api_conversation_detail_requires_auth_and_returns_structure(self):
+		url = reverse('chatia:api_conversation_detail', args=[self.conv.id])
+		resp = self.client.get(url)
+		self.assertEqual(resp.status_code, 200)
+		data = resp.json()
+		self.assertEqual(data['id'], self.conv.id)
+		self.assertIn('messages', data)
+		self.assertEqual(len(data['messages']), 2)
+
+
 class TemplateRenderingTests(TestCase):
 	"""Tests de renderización de templates."""
 

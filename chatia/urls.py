@@ -27,6 +27,7 @@ urlpatterns = [
     # JSON endpoints for Fase 8
     path('api/conversations/', views.api_conversations, name='api_conversations'),
     path('api/statistics/', views.api_statistics, name='api_statistics'),
+    path('api/conversations/<int:conversation_id>/', views.api_conversation_detail, name='api_conversation_detail'),
     # Partial HTML for HTMX
     path('conversations/partial/', views.conversations_partial, name='conversations_partial'),
 ]

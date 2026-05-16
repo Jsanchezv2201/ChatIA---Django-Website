@@ -16,9 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from chatia.views import CustomLoginView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    # Override the login view so failed attempts return HTTP 401
+    path('accounts/login/', CustomLoginView.as_view(), name='login'),
     path('accounts/', include('django.contrib.auth.urls')),
     path('', include('chatia.urls')),
 ]

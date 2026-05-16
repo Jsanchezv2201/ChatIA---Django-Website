@@ -174,6 +174,41 @@ class MessageTests(TestCase):
 		self.assertEqual(Message.objects.filter(conversation=self.conversation, role=Message.ROLE_USER).count(), 1)
 		self.assertEqual(Message.objects.filter(conversation=self.conversation, role=Message.ROLE_ASSISTANT).count(), 1)
 
+	def test_send_message_stream_invalid_prompt_returns_error(self):
+		"""Test: enviar prompt vacío al endpoint de streaming devuelve evento de error y 400."""
+		response = self.client.post(
+			reverse('chatia:send_message_stream', args=[self.conversation.id]),
+			{'prompt': ''}
+		)
+		self.assertEqual(response.status_code, 400)
+		# contenido SSE con evento error
+		body = b''.join(response.streaming_content).decode('utf-8')
+		self.assertIn('event: error', body)
+		self.assertIn('mensaje', body.lower() or '')
+
+	def test_send_message_stream_on_archived_conversation_returns_error(self):
+		"""Test: no se puede enviar streaming si la conversación está archivada."""
+		self.conversation.is_archived = True
+		self.conversation.save()
+		response = self.client.post(
+			reverse('chatia:send_message_stream', args=[self.conversation.id]),
+			{'prompt': 'Hola'}
+		)
+		self.assertEqual(response.status_code, 400)
+		body = b''.join(response.streaming_content).decode('utf-8')
+		self.assertIn('event: error', body)
+		self.assertIn('archiv', body.lower())
+
+	def test_send_message_stream_forbidden_for_other_user(self):
+		"""Test: otro usuario no puede acceder al endpoint de streaming (404)."""
+		other = User.objects.create_user(username='other', password='otherpass')
+		conv = Conversation.objects.create(user=other)
+		response = self.client.post(
+			reverse('chatia:send_message_stream', args=[conv.id]),
+			{'prompt': 'Hola'}
+		)
+		self.assertEqual(response.status_code, 404)
+
 	def test_message_feedback_ajax_saves_vote(self):
 		"""Test: el feedback por AJAX guarda la valoración del usuario."""
 		assistant_message = Message.objects.create(
@@ -440,3 +475,160 @@ class ServiceUnitTests(TestCase):
 		self.assertEqual(len(payload), 13)
 		self.assertEqual(payload[1]['content'], 'msg 3')
 		self.assertEqual(payload[-1]['content'], 'msg 14')
+
+
+class LLMServiceTests(TestCase):
+	"""Unit tests for `ask_llm` and `ask_llm_stream` behaviours using mocks."""
+
+	def setUp(self):
+		self.user = User.objects.create_user(username='svcuser', password='pass')
+		self.conv = Conversation.objects.create(user=self.user)
+
+	def test_ask_llm_returns_config_message_if_no_api_key(self):
+		from django.conf import settings
+		orig = settings.LLM_API_KEY
+		settings.LLM_API_KEY = ''
+		try:
+			from chatia.services import ask_llm
+			resp = ask_llm(self.conv)
+			self.assertIn('Configura LLM_API_KEY', resp)
+		finally:
+			settings.LLM_API_KEY = orig
+
+	def test_ask_llm_stream_raises_if_no_api_key(self):
+		from django.conf import settings
+		orig = settings.LLM_API_KEY
+		settings.LLM_API_KEY = ''
+		try:
+			from chatia.services import ask_llm_stream
+			with self.assertRaises(RuntimeError):
+				list(ask_llm_stream(self.conv))
+		finally:
+			settings.LLM_API_KEY = orig
+
+	def test_ask_llm_stream_yields_tokens_from_client(self):
+		# Mock OpenAI client to yield chunk objects with choices[0].delta.content
+		class Delta: 
+			def __init__(self, content):
+				self.content = content
+
+		class Choice:
+			def __init__(self, delta):
+				self.delta = delta
+
+		class Chunk:
+			def __init__(self, token):
+				self.choices = [Choice(Delta(token))]
+
+		def fake_stream(*args, **kwargs):
+			for t in ['Hola ', 'mundo', '!']:
+				yield Chunk(t)
+
+		from unittest.mock import patch
+		from django.conf import settings
+		settings.LLM_API_KEY = settings.LLM_API_KEY or 'FAKE'
+
+		with patch('chatia.services.OpenAI') as MockOpenAI:
+			mock_client = MockOpenAI.return_value
+			mock_client.chat.completions.create.return_value = fake_stream()
+			from chatia.services import ask_llm_stream
+			tokens = list(ask_llm_stream(self.conv))
+			self.assertEqual(''.join(tokens), 'Hola mundo!')
+
+
+class ExtraEndpointTests(TestCase):
+	"""Additional endpoint tests for edge cases."""
+
+	def setUp(self):
+		self.client = Client()
+		self.user = User.objects.create_user(username='edge', password='pass')
+		self.client.login(username='edge', password='pass')
+		self.conv = Conversation.objects.create(user=self.user)
+
+	def test_conversation_set_model_rejects_invalid_model(self):
+		response = self.client.post(
+			reverse('chatia:conversation_set_model', args=[self.conv.id]),
+			{'llm_model': 'not-a-valid-model'},
+			HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+		)
+		self.assertEqual(response.status_code, 400)
+
+	def test_message_feedback_non_ajax_redirects(self):
+		assistant_message = Message.objects.create(conversation=self.conv, role=Message.ROLE_ASSISTANT, content='txt')
+		response = self.client.post(reverse('chatia:message_feedback', args=[assistant_message.id]), {'value': 'up'})
+		self.assertEqual(response.status_code, 302)
+
+
+class ServicesErrorHandlingTests(TestCase):
+	"""Tests to cover error branches in `ask_llm` and `ask_llm_stream`."""
+
+	def setUp(self):
+		self.user = User.objects.create_user(username='erruser', password='pass')
+		self.conv = Conversation.objects.create(user=self.user)
+
+	def test_ask_llm_authentication_error(self):
+		from unittest.mock import patch
+		from chatia import services as svc
+
+		class FakeAuth(Exception):
+			pass
+
+		with patch('chatia.services.OpenAI') as MockOpenAI, patch('chatia.services.AuthenticationError', FakeAuth):
+			mock_client = MockOpenAI.return_value
+			mock_client.chat.completions.create.side_effect = FakeAuth('no auth')
+			res = svc.ask_llm(self.conv)
+			self.assertIn('Error de autenticación', res)
+
+	def test_ask_llm_api_status_429(self):
+		from unittest.mock import patch
+		from chatia import services as svc
+
+		class FakeStatus(Exception):
+			def __init__(self, status_code):
+				self.status_code = status_code
+
+		with patch('chatia.services.OpenAI') as MockOpenAI, patch('chatia.services.APIStatusError', FakeStatus):
+			mock_client = MockOpenAI.return_value
+			mock_client.chat.completions.create.side_effect = FakeStatus(429)
+			res = svc.ask_llm(self.conv)
+			self.assertIn('El servidor está sobrecargado', res)
+
+	def test_ask_llm_api_status_500_returns_error_message(self):
+		from unittest.mock import patch
+		from chatia import services as svc
+
+		class FakeStatus(Exception):
+			def __init__(self, status_code):
+				self.status_code = status_code
+
+		with patch('chatia.services.OpenAI') as MockOpenAI, patch('chatia.services.APIStatusError', FakeStatus):
+			mock_client = MockOpenAI.return_value
+			mock_client.chat.completions.create.side_effect = FakeStatus(500)
+			res = svc.ask_llm(self.conv)
+			self.assertIn('Error del servidor de IA (HTTP 500)', res)
+
+	def test_ask_llm_stream_interrupted_after_tokens_raises_runtime(self):
+		from unittest.mock import patch
+		from chatia import services as svc
+
+		class Delta:
+			def __init__(self, content):
+				self.content = content
+
+		class Choice:
+			def __init__(self, delta):
+				self.delta = delta
+
+		class Chunk:
+			def __init__(self, token):
+				self.choices = [Choice(Delta(token))]
+
+		def broken_stream():
+			yield Chunk('token1')
+			raise Exception('conn lost')
+
+		with patch('chatia.services.OpenAI') as MockOpenAI, patch('chatia.services.APIConnectionError', Exception):
+			mock_client = MockOpenAI.return_value
+			mock_client.chat.completions.create.return_value = broken_stream()
+			with self.assertRaises(RuntimeError):
+				list(svc.ask_llm_stream(self.conv))

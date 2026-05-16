@@ -1,7 +1,7 @@
 import json
 
 from django.conf import settings
-from django.db.models import OuterRef, Subquery
+from django.db.models import OuterRef, Subquery, Q
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.http import StreamingHttpResponse
@@ -395,8 +395,17 @@ def conversations_partial(request):
 	HTMX realizará un GET a esta vista y reemplazará un contenedor en la página padre
 	con el HTML devuelto (ver `chats.html` para el contenedor objetivo).
 	"""
-	active_conversations = request.user.conversations.filter(is_archived=False)
-	archived_conversations = request.user.conversations.filter(is_archived=True)
+	q = (request.GET.get('q') or '').strip()
+	base_q = Q()
+	if q:
+		# search in title or in any message content
+		base_q = Q(title__icontains=q) | Q(messages__content__icontains=q)
+	active_conversations = (
+		request.user.conversations.filter(is_archived=False).filter(base_q).distinct()
+	)
+	archived_conversations = (
+		request.user.conversations.filter(is_archived=True).filter(base_q).distinct()
+	)
 	return render(
 		request,
 		'chatia/_conversations_list.html',

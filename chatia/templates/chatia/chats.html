@@ -7,7 +7,7 @@
     <div class="card-body">
         <div class="d-flex flex-wrap justify-content-between gap-2 align-items-center mb-3">
             <div>
-                <h1 class="h3 mb-1">Chats</h1>
+                <h1 class="h3 mb-1">Conversaciones</h1>
                 <p class="note mb-0">Accede a tus conversaciones guardadas y abre el historial completo.</p>
             </div>
             <form method="post" action="{% url 'chatia:conversation_create' %}">
@@ -16,15 +16,14 @@
             </form>
         </div>
 
-        <!--
-            Cargador de fragmento con HTMX:
-            - hx-get: URL para obtener el fragmento HTML con la lista de conversaciones
-            - hx-trigger: dispara la petición al cargar la página y cada 15 segundos
-            - hx-swap: reemplaza el contenido interno de este contenedor con la respuesta
-            Permite actualizar la lista sin recargar toda la página (mejora la experiencia de usuario).
-        -->
-        <div id="conversations-list" hx-get="{% url 'chatia:conversations_partial' %}" hx-trigger="load, every 15s" hx-swap="innerHTML">
-            {% include 'chatia/_conversations_list.html' %}
+        <form id="search-conversations" class="mb-3" hx-get="{% url 'chatia:conversations_partial' %}" hx-target="#conversations-list" hx-swap="innerHTML" hx-trigger="keyup changed delay:500ms, search">
+            <input type="search" name="q" class="form-control" placeholder="Buscar conversaciones por título o contenido..." aria-label="Buscar conversaciones">
+        </form>
+
+        <div class="conversations-wrapper">
+            <div id="conversations-list" hx-get="{% url 'chatia:conversations_partial' %}" hx-trigger="load, every 15s" hx-swap="innerHTML">
+                {% include 'chatia/_conversations_list.html' %}
+            </div>
         </div>
     </div>
 </section>

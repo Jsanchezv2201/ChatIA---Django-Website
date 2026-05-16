@@ -122,6 +122,13 @@ body.dark-mode .sidebar a {
     color: inherit;
 }
 
+/* Wrapper to center the conversations block inside the card */
+.conversations-wrapper {
+    max-width: 920px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 body.dark-mode .sidebar a.active {
     border-color: rgba(96, 165, 250, 0.34);
     background: rgba(96, 165, 250, 0.14);
@@ -187,6 +194,13 @@ body.dark-mode .sidebar a.active {
     font-style: normal; /* no italic for the left label, per UI preference */
 }
 
+.chat-model-tag .model-label {
+    color: var(--text-faint);
+    font-size: 0.9rem;
+    font-weight: 400;
+    margin-right: 0.45rem;
+}
+
 .chat-model-tag strong {
     color: inherit;
     font-weight: 400;
@@ -227,6 +241,7 @@ body.dark-mode .chat-model-tag select option {
     padding: 1.1rem;
     background: rgba(248, 250, 252, 0.95);
     display: grid;
+    align-items: start;
     gap: 0.85rem;
     scroll-behavior: smooth;
 }

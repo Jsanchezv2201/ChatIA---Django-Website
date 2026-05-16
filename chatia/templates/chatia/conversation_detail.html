@@ -31,6 +31,7 @@
                     <span class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle">Archivada</span>
                     {% endif %}
                     <div class="chat-model-tag mt-2 d-flex align-items-center gap-2">
+                        <span class="model-label">Modelo:</span>
                         <select id="conversation-llm-select" class="form-select form-select-sm" style="width:auto;" aria-label="Seleccionar modelo de la conversación" data-url="{% url 'chatia:conversation_set_model' conversation.id %}">
                             <option value="">(Usar preferencia de usuario)</option>
                             {% for model in llm_model_options %}

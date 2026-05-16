@@ -36,6 +36,12 @@ class UserPreferenceForm(forms.Form):
         choices=settings.LLM_MODEL_CHOICES,
         widget=forms.Select(attrs={'class': 'form-select'}),
     )
+    alias = forms.CharField(
+        label='Alias',
+        required=False,
+        max_length=50,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'autocomplete': 'off'}),
+    )
     llm_max_tokens = forms.IntegerField(
         label='Tokens máximos personales',
         min_value=64,

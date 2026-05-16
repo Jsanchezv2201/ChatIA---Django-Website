@@ -5,14 +5,14 @@
 {% block content %}
 <section class="auth-card card">
     <div class="card-body">
-        <h1 class="h3">Perfil de {{ user.username }}</h1>
+        <h1 class="h3">Perfil de {{ user_preference.alias|default:user.username }}</h1>
         <p class="note">Página personal del usuario autenticado.</p>
 
         <div class="row g-3 mb-4">
             <div class="col-md-6">
                 <div class="metric-card h-100">
                     <span class="metric-label">Nombre de usuario</span>
-                    <strong>{{ user.username }}</strong>
+                    <strong>{{ user_preference.alias|default:user.username }}</strong>
                 </div>
             </div>
             <div class="col-md-6">

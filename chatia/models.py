@@ -69,6 +69,8 @@ class UserPreference(models.Model):
 	llm_model = models.CharField(max_length=120, default='meta/llama-3.1-8b-instruct')
 	llm_max_tokens = models.IntegerField(default=1024)
 	llm_temperature = models.FloatField(default=0.7, help_text='Valor entre 0.0 y 2.0')
+	alias = models.CharField(max_length=50, blank=True, null=True,
+					help_text='Alias público opcional para mostrar en la interfaz del usuario.')
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 

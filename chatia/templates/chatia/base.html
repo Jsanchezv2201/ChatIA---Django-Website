@@ -26,7 +26,7 @@
                 <span>ChatIA</span>
             </a>
             {% if user.is_authenticated %}
-            <span class="user-badge">{{ user.username }}</span>
+            <span class="user-badge">{{ user_preference.alias|default:user.username }}</span>
             {% endif %}
         </div>
 

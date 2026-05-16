@@ -429,6 +429,10 @@ def configuration(request):
 		form = UserPreferenceForm(request.POST)
 		if form.is_valid():
 			user_pref.llm_model = form.cleaned_data.get('llm_model') or user_pref.llm_model
+			# alias: optional, allow empty string to clear
+			alias = form.cleaned_data.get('alias')
+			if alias is not None:
+				user_pref.alias = alias.strip() or None
 			llm_max_tokens = form.cleaned_data.get('llm_max_tokens')
 			if llm_max_tokens:
 				user_pref.llm_max_tokens = llm_max_tokens
@@ -440,6 +444,7 @@ def configuration(request):
 	else:
 		initial = {
 			'llm_model': user_pref.llm_model,
+			'alias': user_pref.alias,
 			'llm_max_tokens': user_pref.llm_max_tokens,
 			'llm_temperature': user_pref.llm_temperature,
 		}

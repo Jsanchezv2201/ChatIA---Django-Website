@@ -52,10 +52,17 @@ def conversation_to_markdown(conversation):
 	"""Convierte una conversación completa en un documento Markdown descargable."""
 	created_at = localtime(conversation.created_at).strftime('%d/%m/%Y %H:%M')
 	updated_at = localtime(conversation.updated_at).strftime('%d/%m/%Y %H:%M')
+	# Preferir alias público si existe
+	try:
+		pref = getattr(conversation.user, 'preference', None)
+		username_display = pref.alias if pref and pref.alias else conversation.user.username
+	except Exception:
+		username_display = conversation.user.username
+
 	lines = [
 		f'# Conversación: {conversation.title}',
 		'',
-		f'- Usuario: {conversation.user.username}',
+		f'- Usuario: {username_display}',
 		f'- Estado: {"Archivada" if conversation.is_archived else "Activa"}',
 		f'- Creada: {created_at}',
 		f'- Actualizada: {updated_at}',

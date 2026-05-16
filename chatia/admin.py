@@ -49,7 +49,7 @@ class MessageFeedbackAdmin(admin.ModelAdmin):
 
 @admin.register(UserPreference)
 class UserPreferenceAdmin(admin.ModelAdmin):
-	list_display = ('user', 'llm_model', 'llm_max_tokens', 'llm_temperature', 'updated_at')
-	search_fields = ('user__username',)
+	list_display = ('user', 'alias', 'llm_model', 'llm_max_tokens', 'llm_temperature', 'updated_at')
+	search_fields = ('user__username', 'alias')
 	readonly_fields = ('created_at', 'updated_at')
 

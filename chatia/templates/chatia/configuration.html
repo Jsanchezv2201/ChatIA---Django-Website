@@ -31,7 +31,7 @@
             <div class="col-md-6">
                 <div class="metric-card h-100">
                     <span class="metric-label">Usuario</span>
-                    <strong>{{ user.username }}</strong>
+                    <strong>{{ user_preference.alias|default:user.username }}</strong>
                 </div>
             </div>
         </div>
@@ -71,6 +71,12 @@
                 <div class="metric-card h-100">
                     <span class="metric-label">Tokens máximos personales</span>
                     {{ form.llm_max_tokens }}
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="metric-card h-100">
+                    <span class="metric-label">Alias</span>
+                    {{ form.alias }}
                 </div>
             </div>
             <div class="col-md-6">

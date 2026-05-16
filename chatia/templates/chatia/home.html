@@ -7,7 +7,7 @@
     <div class="col-12">
         <div class="auth-card card">
             <div class="card-body">
-                <h1 class="card-title">Bienvenido, {{ user.username }}</h1>
+                <h1 class="card-title">Bienvenido, {{ user_preference.alias|default:user.username }}</h1>
                 <p class="card-text">ChatIA es una web de chat con login, historial y respuestas en streaming.</p>
                 <div class="d-flex flex-wrap gap-2">
                     <a class="btn btn-primary" href="{% url 'chatia:chats' %}">Ir a chats</a>

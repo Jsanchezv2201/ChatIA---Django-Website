@@ -14,7 +14,7 @@
 - Contraseñas (cuentas de prueba):
 	- Usuario estudiante: estudiante / estudiante123
 	- Usuario profesor: profesor / profesor123
-- Cuenta Admin Site: admin / admin
+- Cuenta Admin Site: juan / admin
 
 ## Recursos implementados y métodos disponibles para cada recurso
 

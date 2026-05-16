@@ -31,13 +31,23 @@
         </div>
 
         <nav id="site-nav" class="site-menu" aria-label="Navegación principal">
-            <a href="{% url 'chatia:home' %}" class="{% if current_url_name == 'home' %}active{% endif %}">Principal</a>
-            <a href="{% url 'chatia:chats' %}" class="{% if current_url_name == 'chats' %}active{% endif %}">Chats</a>
+            {% if current_url_name != 'home' %}
+            <a href="{% url 'chatia:home' %}">Principal</a>
+            {% endif %}
+            {% if current_url_name != 'chats' %}
+            <a href="{% url 'chatia:chats' %}">Chats</a>
+            {% endif %}
                 {% if user.is_authenticated %}
-                    <a href="{% url 'chatia:profile' %}" class="{% if current_url_name == 'profile' %}active{% endif %}">Perfil</a>
-                    <a href="{% url 'chatia:configuration' %}" class="{% if current_url_name == 'configuration' %}active{% endif %}">Configuración</a>
+                    {% if current_url_name != 'profile' %}
+                    <a href="{% url 'chatia:profile' %}">Perfil</a>
+                    {% endif %}
+                    {% if current_url_name != 'configuration' %}
+                    <a href="{% url 'chatia:configuration' %}">Configuración</a>
+                    {% endif %}
                 {% endif %}
-            <a href="{% url 'chatia:info' %}" class="{% if current_url_name == 'info' %}active{% endif %}">Ayuda</a>
+            {% if current_url_name != 'info' %}
+            <a href="{% url 'chatia:info' %}">Ayuda</a>
+            {% endif %}
             <button type="button" id="theme-toggle" class="theme-toggle" aria-pressed="false" aria-label="Alternar tema">
                 <img id="icon-sun" src="{% static 'chatia/sun-svgrepo-com.svg' %}" alt="Activar modo claro" class="theme-icon" style="width:20px;height:20px;display:none;"> 
                 <img id="icon-moon" src="{% static 'chatia/moon-svgrepo-com.svg' %}" alt="Activar modo oscuro" class="theme-icon" style="width:20px;height:20px;display:none;">

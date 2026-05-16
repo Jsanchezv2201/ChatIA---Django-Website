@@ -45,17 +45,20 @@ load_local_env(BASE_DIR / '.env')
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-2ooa$qfu6t^e$zp6+!eu+3z3a+ko@d+u01lxuzbbw$79)cg!8o'
+# Read sensitive values from environment for production.
+SECRET_KEY = env_first('DJANGO_SECRET_KEY', default='django-insecure-2ooa$qfu6t^e$zp6+!eu+3z3a+ko@d+u01lxuzbbw$79)cg!8o')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-# For local development we enable DEBUG so Django serves static files
-# and error pages are easier to inspect. Remember to set DEBUG=False
-# before deploying to production.
-DEBUG = True
+# DEBUG should be explicitly set in the environment for production.
+# Default to True for local development convenience.
+DEBUG = env_first('DJANGO_DEBUG', default='True') == 'True'
 
-ALLOWED_HOSTS = ['juansv22.pythonanywhere.com', 'localhost', '127.0.0.1', '[::1]']
+# Hosts allowed to serve the application. Provide a comma-separated
+# list via DJANGO_ALLOWED_HOSTS in production, e.g.:
+# DJANGO_ALLOWED_HOSTS=yourusername.pythonanywhere.com,example.com
+ALLOWED_HOSTS = [h.strip() for h in env_first('DJANGO_ALLOWED_HOSTS', default='juansv22.pythonanywhere.com,localhost,127.0.0.1,[::1]').split(',') if h.strip()]
 
-CSRF_TRUSTED_ORIGINS = ['https://juansv22.pythonanywhere.com']
+# CSRF trusted origins (use https://yourdomain.com). Can be a comma-separated list.
+CSRF_TRUSTED_ORIGINS = [u.strip() for u in env_first('DJANGO_CSRF_TRUSTED_ORIGINS', default='https://juansv22.pythonanywhere.com').split(',') if u.strip()]
 
 
 # Application definition
@@ -209,3 +212,13 @@ LLM_MODEL_CHOICES = [(model['value'], model['label']) for model in LLM_MODEL_CAT
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Production-oriented security defaults when DEBUG is False.
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = 'DENY'
+    # Optionally redirect HTTP to HTTPS when enabled in environment
+    SECURE_SSL_REDIRECT = env_first('DJANGO_SECURE_SSL_REDIRECT', default='False') == 'True'

@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 class Conversation(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='conversations')
 	title = models.CharField(max_length=120, default='Nueva conversacion')
+	llm_model = models.CharField(max_length=120, blank=True, null=True,
+								help_text='Modelo LLM a usar para esta conversación (si está vacío usa la preferencia de usuario).')
 	is_archived = models.BooleanField(default=False)
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
@@ -36,6 +38,30 @@ class Message(models.Model):
 
 	def __str__(self):
 		return f"{self.conversation_id} - {self.role}"
+
+
+class MessageFeedback(models.Model):
+	VALUE_UP = 'up'
+	VALUE_DOWN = 'down'
+	VALUE_CHOICES = [
+		(VALUE_UP, 'Útil'),
+		(VALUE_DOWN, 'No útil'),
+	]
+
+	message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name='feedbacks')
+	user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='message_feedbacks')
+	value = models.CharField(max_length=8, choices=VALUE_CHOICES)
+	created_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
+
+	class Meta:
+		ordering = ['-updated_at']
+		constraints = [
+			models.UniqueConstraint(fields=['message', 'user'], name='unique_message_feedback_per_user'),
+		]
+
+	def __str__(self):
+		return f"{self.user.username} -> {self.get_value_display()} ({self.message_id})"
 
 
 class UserPreference(models.Model):

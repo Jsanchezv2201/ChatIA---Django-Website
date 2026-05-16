@@ -16,11 +16,13 @@ urlpatterns = [
     path('conversations/<int:conversation_id>/archive-toggle/', views.conversation_toggle_archive, name='conversation_toggle_archive'),
     path('conversations/<int:conversation_id>/delete/', views.conversation_delete, name='conversation_delete'),
     path('conversations/<int:conversation_id>/export/md/', views.conversation_export_markdown, name='conversation_export_markdown'),
+    path('messages/<int:message_id>/feedback/', views.message_feedback, name='message_feedback'),
     path(
         'conversations/<int:conversation_id>/send-stream/',
         views.send_message_stream,
         name='send_message_stream',
     ),
+    path('conversations/<int:conversation_id>/set-model/', views.conversation_set_model, name='conversation_set_model'),
     path('conversations/<int:conversation_id>/send/', views.send_message, name='send_message'),
     # JSON endpoints for Fase 8
     path('api/conversations/', views.api_conversations, name='api_conversations'),

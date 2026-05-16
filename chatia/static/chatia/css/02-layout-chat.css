@@ -180,6 +180,24 @@ body.dark-mode .sidebar a.active {
     box-shadow: 0 16px 40px rgba(15, 23, 42, 0.06);
 }
 
+.chat-model-tag {
+    font-size: 0.78rem;
+    color: var(--text-faint);
+    line-height: 1.2;
+    font-style: normal; /* no italic for the left label, per UI preference */
+}
+
+.chat-model-tag strong {
+    color: inherit;
+    font-weight: 400;
+}
+
+/* Mostrar las opciones del selector en cursiva para destacarlas */
+.chat-model-tag select,
+.chat-model-tag select option {
+    font-style: italic;
+}
+
 /* Caja con scroll donde se pintan los mensajes. */
 .messages-box {
     flex: 1 1 auto;
@@ -248,9 +266,9 @@ body.dark-mode .bubble.user {
 }
 
 body.dark-mode .bubble.assistant {
-    border-color: rgba(148, 163, 184, 0.28);
-    background: rgba(17, 24, 39, 0.96);
-    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.18);
+    border-color: rgba(148, 163, 184, 0.18);
+    background: rgba(30, 41, 59, 0.82);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.14), inset 0 1px 0 rgba(255,255,255,0.02);
 }
 
 /* Mensajes de sistema o avisos internos. */
@@ -383,4 +401,32 @@ body.dark-mode .bubble .message-content td {
 .bubble small {
     color: var(--text-faint);
     font-size: 0.78rem;
+}
+
+.bubble-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.feedback-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.feedback-actions form {
+    margin: 0;
+}
+
+.feedback-actions .btn {
+    padding-inline: 0.8rem;
+}
+
+.feedback-status {
+    font-size: 0.8rem;
+    color: var(--text-faint);
+    min-height: 1.1em;
 }

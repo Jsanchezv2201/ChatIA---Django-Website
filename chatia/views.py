@@ -1,6 +1,7 @@
 import json
 
 from django.conf import settings
+from django.db.models import OuterRef, Subquery
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.http import StreamingHttpResponse
@@ -11,10 +12,31 @@ from django.utils.text import slugify
 
 from .forms import ConversationTitleForm, PromptForm
 from .markdown_tools import conversation_to_markdown
-from .models import Conversation, Message, UserPreference
+from .models import Conversation, Message, MessageFeedback, UserPreference
 from .services import ask_llm
 from .services import ask_llm_stream
 from django.utils.timezone import localtime
+
+
+def conversation_messages_with_feedback(conversation, user):
+	feedback_subquery = MessageFeedback.objects.filter(
+		message=OuterRef('pk'),
+		user=user,
+	).values('value')[:1]
+	return conversation.messages.annotate(user_feedback=Subquery(feedback_subquery))
+
+
+def get_user_llm_preference(user):
+	user_pref, _ = UserPreference.objects.get_or_create(user=user)
+	return user_pref
+
+
+def get_user_llm_model_label(user_pref):
+	return dict(settings.LLM_MODEL_CHOICES).get(user_pref.llm_model, user_pref.llm_model)
+
+
+def get_user_llm_model_options():
+	return settings.LLM_MODEL_CATALOG
 
 
 @login_required
@@ -54,11 +76,18 @@ def conversation_create(request):
 @require_GET
 def conversation_detail(request, conversation_id):
 	conversation = get_object_or_404(Conversation, id=conversation_id, user=request.user)
+	messages = conversation_messages_with_feedback(conversation, request.user)
+	user_pref = get_user_llm_preference(request.user)
 	context = {
 		'conversation': conversation,
+		'messages': messages,
 		'conversations': request.user.conversations.filter(is_archived=False),
 		'conversation_title_form': ConversationTitleForm(initial={'title': conversation.title}),
 		'form': PromptForm(),
+		'user_preference': user_pref,
+		'llm_model_label': get_user_llm_model_label(user_pref),
+		'llm_model_options': get_user_llm_model_options(),
+		'conversation_llm_model': conversation.llm_model,
 	}
 	return render(request, 'chatia/conversation_detail.html', context)
 
@@ -94,6 +123,22 @@ def conversation_delete(request, conversation_id):
 
 
 @login_required
+@require_POST
+def conversation_set_model(request, conversation_id):
+	"""Actualizar el modelo LLM asignado a una conversación (solo modelos del catálogo)."""
+	conversation = get_object_or_404(Conversation, id=conversation_id, user=request.user)
+	selected = request.POST.get('llm_model', '').strip()
+	# validar que el modelo esté en el catálogo
+	allowed = [m['value'] for m in get_user_llm_model_options()]
+	if selected and selected not in allowed:
+		return JsonResponse({'ok': False, 'error': 'Modelo no permitido.'}, status=400)
+	conversation.llm_model = selected or None
+	conversation.save(update_fields=['llm_model', 'updated_at'])
+	label = dict(settings.LLM_MODEL_CHOICES).get(selected, selected or '')
+	return JsonResponse({'ok': True, 'llm_model': selected, 'label': label})
+
+
+@login_required
 @require_GET
 def conversation_export_markdown(request, conversation_id):
 	conversation = get_object_or_404(Conversation, id=conversation_id, user=request.user)
@@ -107,22 +152,71 @@ def conversation_export_markdown(request, conversation_id):
 
 @login_required
 @require_POST
+def message_feedback(request, message_id):
+	message = get_object_or_404(
+		Message,
+		id=message_id,
+		conversation__user=request.user,
+		role=Message.ROLE_ASSISTANT,
+	)
+	value = request.POST.get('value', '').strip().lower()
+	if value not in {MessageFeedback.VALUE_UP, MessageFeedback.VALUE_DOWN}:
+		if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+			return JsonResponse({'ok': False, 'error': 'Valor inválido.'}, status=400)
+		return redirect('chatia:conversation_detail', conversation_id=message.conversation_id)
+
+	feedback, created = MessageFeedback.objects.get_or_create(
+		message=message,
+		user=request.user,
+		defaults={'value': value},
+	)
+	if not created:
+		if feedback.value == value:
+			feedback.delete()
+		else:
+			feedback.value = value
+			feedback.save(update_fields=['value', 'updated_at'])
+
+	current_feedback = MessageFeedback.objects.filter(message=message, user=request.user).values_list('value', flat=True).first()
+	response_payload = {
+		'ok': True,
+		'message_id': message.id,
+		'value': current_feedback,
+		'label': dict(MessageFeedback.VALUE_CHOICES).get(current_feedback, '') if current_feedback else '',
+	}
+	if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+		return JsonResponse(response_payload)
+	return redirect('chatia:conversation_detail', conversation_id=message.conversation_id)
+
+
+@login_required
+@require_POST
 def send_message(request, conversation_id):
 	conversation = get_object_or_404(Conversation, id=conversation_id, user=request.user)
 	if conversation.is_archived:
+		messages = conversation_messages_with_feedback(conversation, request.user)
+		user_pref = get_user_llm_preference(request.user)
 		context = {
 			'conversation': conversation,
 			'conversations': request.user.conversations.all(),
+			'messages': messages,
 			'form': PromptForm(),
+			'user_preference': user_pref,
+			'llm_model_label': get_user_llm_model_label(user_pref),
 			'error': 'La conversación está archivada. Desarchívala para seguir escribiendo.',
 		}
 		return render(request, 'chatia/conversation_detail.html', context, status=400)
 	form = PromptForm(request.POST)
 	if not form.is_valid():
+		messages = conversation_messages_with_feedback(conversation, request.user)
+		user_pref = get_user_llm_preference(request.user)
 		context = {
 			'conversation': conversation,
 			'conversations': request.user.conversations.all(),
+			'messages': messages,
 			'form': form,
+			'user_preference': user_pref,
+			'llm_model_label': get_user_llm_model_label(user_pref),
 			'error': 'El mensaje no es valido.',
 		}
 		return render(request, 'chatia/conversation_detail.html', context, status=400)
@@ -138,7 +232,15 @@ def send_message(request, conversation_id):
 		conversation.title = user_text[:80]
 		conversation.save(update_fields=['title', 'updated_at'])
 
-	assistant_text = ask_llm(conversation)
+	user_pref = get_user_llm_preference(request.user)
+	# Prioritize per-conversation model, then user preference, then global default
+	chosen_model = conversation.llm_model or user_pref.llm_model or settings.LLM_MODEL
+	assistant_text = ask_llm(
+		conversation,
+		llm_model=chosen_model,
+		llm_temperature=user_pref.llm_temperature,
+		llm_max_tokens=user_pref.llm_max_tokens,
+	)
 	Message.objects.create(
 		conversation=conversation,
 		role=Message.ROLE_ASSISTANT,
@@ -176,17 +278,30 @@ def send_message_stream(request, conversation_id):
 	if conversation.title == 'Nueva conversacion' and user_text:
 		conversation.title = user_text[:80]
 		conversation.save(update_fields=['title', 'updated_at'])
+	user_pref = get_user_llm_preference(request.user)
 
 	def event_stream():
 		assistant_chunks = []
 		try:
-			for token in ask_llm_stream(conversation):
+			# Prioritize per-conversation model, then user preference, then global default
+			chosen_model = conversation.llm_model or user_pref.llm_model or settings.LLM_MODEL
+			for token in ask_llm_stream(
+				conversation,
+				llm_model=chosen_model,
+				llm_temperature=user_pref.llm_temperature,
+				llm_max_tokens=user_pref.llm_max_tokens,
+			):
 				assistant_chunks.append(token)
 				payload = json.dumps({'token': token}, ensure_ascii=False)
 				yield f'event: token\ndata: {payload}\n\n'
 			assistant_text = ''.join(assistant_chunks).strip() or 'El modelo no devolvio contenido.'
 		except Exception as exc:
-			assistant_text = ask_llm(conversation)
+			assistant_text = ask_llm(
+				conversation,
+				llm_model=chosen_model,
+				llm_temperature=user_pref.llm_temperature,
+				llm_max_tokens=user_pref.llm_max_tokens,
+			)
 			if assistant_text.startswith('Error ') or assistant_text.startswith('No se pudo'):
 				payload = json.dumps({'message': assistant_text}, ensure_ascii=False)
 				yield f'event: error\ndata: {payload}\n\n'
@@ -197,7 +312,8 @@ def send_message_stream(request, conversation_id):
 			content=assistant_text,
 		)
 
-		html = render_to_string('chatia/_messages.html', {'conversation': conversation}, request=request)
+		messages = conversation_messages_with_feedback(conversation, request.user)
+		html = render_to_string('chatia/_messages.html', {'messages': messages}, request=request)
 		payload = json.dumps({'html': html}, ensure_ascii=False)
 		yield f'event: done\ndata: {payload}\n\n'
 
@@ -320,11 +436,17 @@ def configuration(request):
 		}
 		form = UserPreferenceForm(initial=initial)
 
+	selected_llm_model = form.data.get('llm_model') if form.is_bound else user_pref.llm_model
+	if not selected_llm_model:
+		selected_llm_model = user_pref.llm_model
+
 	context = {
 		'llm_base_url': settings.LLM_BASE_URL,
 		'llm_model': settings.LLM_MODEL,
 		'llm_max_tokens': settings.LLM_MAX_TOKENS,
+		'llm_model_options': get_user_llm_model_options(),
 		'user_preference': user_pref,
+		'selected_llm_model': selected_llm_model,
 		'form': form,
 	}
 	return render(request, 'chatia/configuration.html', context)

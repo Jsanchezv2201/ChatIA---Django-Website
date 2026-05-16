@@ -37,7 +37,7 @@ def build_messages_payload(conversation):
 	return payload
 
 
-def ask_llm(conversation):
+def ask_llm(conversation, *, llm_model=None, llm_temperature=None, llm_max_tokens=None):
 	"""
 	Envía la conversación a NVIDIA Build API y obtiene una respuesta completa.
 	
@@ -68,16 +68,19 @@ def ask_llm(conversation):
 		api_key=api_key,
 		timeout=timeout,
 	)
+	model_name = llm_model or settings.LLM_MODEL
+	temperature = llm_temperature if llm_temperature is not None else 0.5
+	max_tokens = llm_max_tokens or settings.LLM_MAX_TOKENS
 
 	for attempt in range(max_attempts):
 		try:
 			# Llamada a la API (como en el ejemplo del profesor)
 			completion = client.chat.completions.create(
-				model=settings.LLM_MODEL,  # ej: meta/llama-3.1-8b-instruct
+				model=model_name,  # ej: meta/llama-3.1-8b-instruct
 				messages=build_messages_payload(conversation),  # Historial de la conversación
-				temperature=0.5,  # Equilibrio entre creatividad (alto) y consistencia (bajo)
+				temperature=temperature,  # Equilibrio entre creatividad (alto) y consistencia (bajo)
 				top_p=0.7,  # Nucleus sampling: considerar tokens con prob acumulada hasta 70%
-				max_tokens=settings.LLM_MAX_TOKENS,  # Máximo de tokens en la respuesta
+				max_tokens=max_tokens,  # Máximo de tokens en la respuesta
 			)
 			# Extraer el texto de la respuesta
 			content = completion.choices[0].message.content
@@ -128,7 +131,7 @@ def ask_llm(conversation):
 	return 'No se pudo contactar con el servidor después de varios intentos.'
 
 
-def ask_llm_stream(conversation):
+def ask_llm_stream(conversation, *, llm_model=None, llm_temperature=None, llm_max_tokens=None):
 	"""
 	Envía la conversación a NVIDIA Build API y obtiene la respuesta en streaming.
 	
@@ -162,17 +165,20 @@ def ask_llm_stream(conversation):
 		api_key=api_key,
 		timeout=timeout,
 	)
+	model_name = llm_model or settings.LLM_MODEL
+	temperature = llm_temperature if llm_temperature is not None else 0.5
+	max_tokens = llm_max_tokens or settings.LLM_MAX_TOKENS
 
 	for attempt in range(max_attempts):
 		emitted_any_token = False  # Rastreamos si hemos enviado al menos un token
 		try:
 			# Llamada con stream=True (como en el ejemplo del profesor)
 			stream = client.chat.completions.create(
-				model=settings.LLM_MODEL,
+				model=model_name,
 				messages=build_messages_payload(conversation),
-				temperature=0.5,
+				temperature=temperature,
 				top_p=0.7,
-				max_tokens=settings.LLM_MAX_TOKENS,
+				max_tokens=max_tokens,
 				stream=True,  # ← Importante: activa el streaming
 			)
 

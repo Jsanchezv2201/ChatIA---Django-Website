@@ -137,7 +137,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Madrid'
 
 USE_I18N = True
 
@@ -159,8 +159,51 @@ LOGOUT_REDIRECT_URL = 'login'
 
 LLM_BASE_URL = env_first('LLM_BASE_URL', default='https://integrate.api.nvidia.com/v1')
 LLM_API_KEY = env_first('LLM_API_KEY', 'OPENAI_API_KEY', 'NVIDIA_API_KEY')
-LLM_MODEL = env_first('LLM_MODEL', default='meta/llama-3.1-8b-instruct')
+LLM_MODEL_1 = env_first('LLM_MODEL_1')
+LLM_MODEL_2 = env_first('LLM_MODEL_2')
+LLM_MODEL_3 = env_first('LLM_MODEL_3')
+LLM_MODEL_4 = env_first('LLM_MODEL_4')
+LLM_MODEL = env_first('LLM_MODEL', default=LLM_MODEL_1 or 'meta/llama-3.1-8b-instruct')
 LLM_MAX_TOKENS = int(env_first('LLM_MAX_TOKENS', default='1024'))
+
+
+def llm_model_info(model_value):
+    preset_info = {
+        'meta/llama-3.1-8b-instruct': {
+            'label': 'Meta Llama 3.1 8B Instruct',
+            'description': 'Equilibrado. Buena opción general para responder con rapidez y calidad razonable.',
+        },
+        'google/gemma-3n-e2b-it': {
+            'label': 'Google Gemma 3n E2B IT',
+            'description': 'Ligero y rápido. Bien para respuestas ágiles y pruebas cortas.',
+        },
+        'meta/llama-4-maverick-17b-128e-instruct': {
+            'label': 'Meta Llama 4 Maverick 17B 128E Instruct',
+            'description': 'Más potente y exigente. Útil si buscas mayor calidad en razonamiento y redacción.',
+        },
+        'openai/gpt-oss-120b': {
+            'label': 'OpenAI GPT-OSS 120B',
+            'description': 'Muy potente. Recomendado si quieres priorizar calidad, aunque puede ser más pesado.',
+        },
+    }
+    info = preset_info.get(model_value)
+    if info:
+        return {
+            'value': model_value,
+            'label': info['label'],
+            'description': info['description'],
+        }
+    return {
+        'value': model_value,
+        'label': model_value,
+        'description': 'Modelo configurado en el entorno.',
+    }
+
+
+LLM_MODEL_CATALOG = [llm_model_info(model) for model in [LLM_MODEL_1, LLM_MODEL_2, LLM_MODEL_3, LLM_MODEL_4] if model]
+if not LLM_MODEL_CATALOG:
+    LLM_MODEL_CATALOG = [llm_model_info(LLM_MODEL)]
+LLM_MODEL_CHOICES = [(model['value'], model['label']) for model in LLM_MODEL_CATALOG]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

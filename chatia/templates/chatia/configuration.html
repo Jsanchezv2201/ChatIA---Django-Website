@@ -39,10 +39,32 @@
         <h2 class="h5 mt-4 mb-3">Preferencias personales</h2>
         <form method="post" class="row g-3">
             {% csrf_token %}
-            <div class="col-md-6">
+            <div class="col-12">
                 <div class="metric-card h-100">
-                    <span class="metric-label">Modelo preferido</span>
-                    {{ form.llm_model }}
+                    <span class="metric-label d-block mb-2">Modelo preferido</span>
+                    <div class="model-choice-list">
+                        {% for model in llm_model_options %}
+                        <label class="model-choice-card{% if selected_llm_model == model.value %} selected{% endif %}">
+                            <span class="model-choice-card__radio-wrap">
+                                <input
+                                    type="radio"
+                                    name="llm_model"
+                                    value="{{ model.value }}"
+                                    {% if selected_llm_model == model.value %}checked{% endif %}
+                                >
+                            </span>
+                            <span class="model-choice-card__content">
+                                <span class="model-choice-card__label-row">
+                                    <span class="model-choice-card__label">{{ model.label }}</span>
+                                    {% if selected_llm_model == model.value %}
+                                    <span class="model-choice-card__badge">Seleccionado</span>
+                                    {% endif %}
+                                </span>
+                                <span class="model-choice-card__description">{{ model.description }}</span>
+                            </span>
+                        </label>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
             <div class="col-md-6">

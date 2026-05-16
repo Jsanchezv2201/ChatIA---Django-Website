@@ -30,6 +30,14 @@
                     {% if conversation.is_archived %}
                     <span class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle">Archivada</span>
                     {% endif %}
+                    <div class="chat-model-tag mt-2 d-flex align-items-center gap-2">
+                        <select id="conversation-llm-select" class="form-select form-select-sm" style="width:auto;" aria-label="Seleccionar modelo de la conversación" data-url="{% url 'chatia:conversation_set_model' conversation.id %}">
+                            <option value="">(Usar preferencia de usuario)</option>
+                            {% for model in llm_model_options %}
+                            <option value="{{ model.value }}" {% if conversation_llm_model == model.value %}selected{% endif %}>{{ model.label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
                 </div>
                 <div class="dropdown conversation-menu">
                     <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" aria-label="Abrir acciones de conversación">
@@ -125,6 +133,21 @@
             container._buffer = content || '';
             container._renderTimer = null;
             return { article: article, paragraph: container };
+        }
+
+        function replaceMessagesHtml(html) {
+            var messages = document.getElementById('messages');
+            if (!messages) return;
+            var wrapper = document.createElement('div');
+            wrapper.innerHTML = html;
+            var nextMessages = wrapper.querySelector('#messages');
+            if (!nextMessages) return;
+            messages.innerHTML = nextMessages.innerHTML;
+            requestAnimationFrame(function () {
+                requestAnimationFrame(function () {
+                    scrollMessagesToBottom(false);
+                });
+            });
         }
 
         function renderBubbleContent(buf) {
@@ -230,13 +253,17 @@
                         }
 
                         if (eventName === 'done') {
-                            // Marcar el bubble como terminado (sin clase 'streaming')
-                            assistantBubble.article.classList.remove('streaming');
-                            // Evitar reemplazar todo el contenedor: eso resetea el scroll visual al inicio.
-                            // Solo forzamos el render final del último mensaje en el mismo DOM.
-                            renderBubbleContent(assistantBubble.paragraph);
-                            // Garantizar que nos quedamos al fondo después del render final
-                            try { scrollMessagesToBottom(true); } catch (e) { /* ignore */ }
+                            if (payload.html) {
+                                replaceMessagesHtml(payload.html);
+                            } else {
+                                assistantBubble.article.classList.remove('streaming');
+                                renderBubbleContent(assistantBubble.paragraph);
+                                requestAnimationFrame(function () {
+                                    requestAnimationFrame(function () {
+                                        scrollMessagesToBottom(false);
+                                    });
+                                });
+                            }
                         }
                     });
                 }
@@ -255,6 +282,46 @@
             }
         }
 
+        function updateFeedbackButtons(article, value) {
+            if (!article) return;
+            article.dataset.feedbackValue = value || '';
+            var usefulButton = article.querySelector('[data-feedback-button="up"]');
+            var notUsefulButton = article.querySelector('[data-feedback-button="down"]');
+            if (usefulButton) {
+                usefulButton.classList.toggle('btn-success', value === 'up');
+                usefulButton.classList.toggle('btn-outline-success', value !== 'up');
+            }
+            if (notUsefulButton) {
+                notUsefulButton.classList.toggle('btn-danger', value === 'down');
+                notUsefulButton.classList.toggle('btn-outline-danger', value !== 'down');
+            }
+        }
+
+        async function submitFeedback(form) {
+            var article = form.closest('.bubble');
+            if (!article) return;
+            try {
+                var response = await fetch(form.action, {
+                    method: 'POST',
+                    body: new FormData(form),
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                    },
+                });
+                var payload = await response.json();
+                if (!response.ok || !payload.ok) {
+                    throw new Error(payload.error || 'No se pudo guardar el voto.');
+                }
+                updateFeedbackButtons(article, payload.value);
+            } catch (error) {
+                var status = article.querySelector('.feedback-status');
+                if (status) {
+                    status.textContent = error.message;
+                }
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
             var form = document.getElementById('chat-composer');
             if (!form) return;
@@ -263,6 +330,34 @@
                 event.preventDefault();
                 streamReply(form);
             });
+
+            document.addEventListener('submit', function (event) {
+                var feedbackForm = event.target.closest('form[data-feedback-form]');
+                if (!feedbackForm) return;
+                event.preventDefault();
+                submitFeedback(feedbackForm);
+            });
+
+            // Handler para cambiar el modelo por conversación
+            var modelSelect = document.getElementById('conversation-llm-select');
+            if (modelSelect) {
+                modelSelect.addEventListener('change', async function () {
+                    var url = modelSelect.dataset.url;
+                    var value = modelSelect.value || '';
+                    try {
+                        var fd = new FormData();
+                        fd.append('llm_model', value);
+                        fd.append('csrfmiddlewaretoken', document.querySelector('input[name="csrfmiddlewaretoken"]').value);
+                        var resp = await fetch(url, { method: 'POST', body: fd, headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+                        var payload = await resp.json();
+                        if (!resp.ok || !payload.ok) throw new Error(payload.error || 'Error al guardar modelo');
+                        // label removed from UI; no update required here
+                    } catch (e) {
+                        console.error('No se pudo guardar el modelo de conversación', e);
+                        alert('No se pudo guardar el modelo seleccionado.');
+                    }
+                });
+            }
         });
     })();
 </script>

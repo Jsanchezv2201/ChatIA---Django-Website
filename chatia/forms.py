@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 
 
 class PromptForm(forms.Form):
@@ -29,11 +30,11 @@ class ConversationTitleForm(forms.Form):
 
 
 class UserPreferenceForm(forms.Form):
-    llm_model = forms.CharField(
+    llm_model = forms.ChoiceField(
         label='Modelo preferido',
-        max_length=200,
         required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        choices=settings.LLM_MODEL_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-select'}),
     )
     llm_max_tokens = forms.IntegerField(
         label='Tokens máximos personales',

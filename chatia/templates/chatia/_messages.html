@@ -4,11 +4,27 @@
     <p class="error">{{ error }}</p>
     {% endif %}
 
-    {% for message in conversation.messages.all %}
-    <article class="bubble {{ message.role }}">
+    {% for message in messages %}
+    <article class="bubble {{ message.role }}" data-message-id="{{ message.id }}" data-feedback-value="{{ message.user_feedback|default:'' }}">
         <h4>{% if message.role == 'user' %}Tú{% elif message.role == 'assistant' %}ChatIA{% else %}Sistema{% endif %}</h4>
         <div class="message-content">{{ message.content|render_markdown }}</div>
-        <small>{{ message.created_at|date:'d/m/Y H:i' }}</small>
+        <div class="bubble-footer">
+            <small>{{ message.created_at|date:'d/m/Y H:i' }}</small>
+            {% if message.role == 'assistant' %}
+            <div class="feedback-actions" data-feedback-actions>
+                <form method="post" action="{% url 'chatia:message_feedback' message.id %}" data-feedback-form>
+                    {% csrf_token %}
+                    <input type="hidden" name="value" value="up">
+                    <button class="btn btn-sm {% if message.user_feedback == 'up' %}btn-success{% else %}btn-outline-success{% endif %}" type="submit" data-feedback-button="up">Útil</button>
+                </form>
+                <form method="post" action="{% url 'chatia:message_feedback' message.id %}" data-feedback-form>
+                    {% csrf_token %}
+                    <input type="hidden" name="value" value="down">
+                    <button class="btn btn-sm {% if message.user_feedback == 'down' %}btn-danger{% else %}btn-outline-danger{% endif %}" type="submit" data-feedback-button="down">No útil</button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
     </article>
     {% empty %}
     <p>Empieza la conversacion enviando tu primera pregunta.</p>

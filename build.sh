@@ -2,8 +2,12 @@
 # Exit immediately if a command exits with a non-zero status.
 set -e
 
-# Install Python dependencies
+# Create a virtual environment to avoid conflicts with system packages
+python -m venv .venv
+source .venv/bin/activate
+
+# Install Python dependencies into the virtual environment
 pip install -r requirements.txt
 
-# Run Django migrations
+# Run Django migrations using the virtual environment's python
 python manage.py migrate

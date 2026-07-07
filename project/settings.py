@@ -122,6 +122,10 @@ DATABASES = {
     }
 }
 
+# Si estamos en Vercel, usamos una ruta de bd en /tmp que sí es escribible
+if os.getenv('VERCEL') == '1':
+    DATABASES['default']['NAME'] = '/tmp/db.sqlite3'
+
 
 # Validadores de contraseñas.
 # Django aplica estas reglas cuando se crean o cambian contraseñas de usuario.

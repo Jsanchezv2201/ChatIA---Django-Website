@@ -1,5 +1,7 @@
 {% extends 'chatia/base.html' %}
 
+<!-- Página de listado de chats: aquí se busca, crea y actualiza la lista con HTMX. -->
+
 {% block title %}Chats | ChatIA{% endblock %}
 
 {% block content %}
@@ -7,17 +9,17 @@
     <div class="card-body">
         <div class="d-flex flex-wrap justify-content-between gap-2 align-items-center mb-3">
             <div>
-                <h1 class="h3 mb-1">Conversaciones</h1>
-                <p class="note mb-0">Accede a tus conversaciones guardadas y abre el historial completo.</p>
+                <h1 class="h3 mb-1">Chats</h1>
+                <p class="note mb-0">Accede a tus chats guardados y abre el historial completo.</p>
             </div>
             <form method="post" action="{% url 'chatia:conversation_create' %}">
                 {% csrf_token %}
-                <button class="btn btn-primary" type="submit">Nueva conversación</button>
+                <button class="btn btn-primary" type="submit">Nuevo chat</button>
             </form>
         </div>
 
         <form id="search-conversations" class="mb-3" hx-get="{% url 'chatia:conversations_partial' %}" hx-target="#conversations-list" hx-swap="innerHTML" hx-trigger="keyup changed delay:500ms, search">
-            <input type="search" name="q" class="form-control" placeholder="Buscar conversaciones por título o contenido..." aria-label="Buscar conversaciones">
+            <input type="search" name="q" class="form-control" placeholder="Buscar chats por título o contenido..." aria-label="Buscar chats">
         </form>
 
         <div class="conversations-wrapper">
@@ -28,3 +30,5 @@
     </div>
 </section>
 {% endblock %}
+
+{% block footer %}{% endblock %}

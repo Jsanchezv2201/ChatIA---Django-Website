@@ -1,6 +1,4 @@
-<!-- Plantilla parcial renderizada por la vista `conversations_partial`.
-    Este fragmento lo solicita HTMX y se inserta en la página principal.
-    Mantener esta plantilla mínima porque se intercambiará en el DOM. -->
+<!-- Parcial de chats: HTMX lo carga para refrescar listas activas y archivadas sin recargar toda la página. -->
 <div class="conversation-groups">
     <div class="conversation-group">
         <h3 class="h6 mb-3">Activas</h3>
@@ -26,15 +24,15 @@
                                     value="{{ conversation.title }}"
                                     maxlength="120"
                                     autocomplete="off"
-                                    placeholder="Renombrar conversación"
+                                    placeholder="Renombrar chat"
                                 >
                                 <button class="btn btn-sm btn-primary" type="submit">Renombrar</button>
                             </form>
-                            <form method="post" action="{% url 'chatia:conversation_toggle_archive' conversation.id %}" class="mb-2">
+                                <form method="post" action="{% url 'chatia:conversation_toggle_archive' conversation.id %}" class="mb-2">
                                 {% csrf_token %}
                                 <button class="btn btn-sm btn-outline-secondary w-100" type="submit">Archivar</button>
                             </form>
-                            <form method="post" action="{% url 'chatia:conversation_delete' conversation.id %}" onsubmit="return confirm('¿Seguro que quieres borrar esta conversación?');">
+                            <form method="post" action="{% url 'chatia:conversation_delete' conversation.id %}" onsubmit="return confirm('¿Seguro que quieres borrar este chat?');">
                                 {% csrf_token %}
                                 <button class="btn btn-sm btn-outline-danger w-100" type="submit">Borrar</button>
                             </form>
@@ -43,7 +41,7 @@
                 </div>
             </div>
             {% empty %}
-            <div class="list-group-item">No tienes conversaciones activas todavía.</div>
+            <div class="list-group-item">No tienes chats activos todavía.</div>
             {% endfor %}
         </div>
     </div>
@@ -72,7 +70,7 @@
                                     value="{{ conversation.title }}"
                                     maxlength="120"
                                     autocomplete="off"
-                                    placeholder="Renombrar conversación"
+                                    placeholder="Renombrar chat"
                                 >
                                 <button class="btn btn-sm btn-primary" type="submit">Renombrar</button>
                             </form>
@@ -80,7 +78,7 @@
                                 {% csrf_token %}
                                 <button class="btn btn-sm btn-outline-primary w-100" type="submit">Restaurar</button>
                             </form>
-                            <form method="post" action="{% url 'chatia:conversation_delete' conversation.id %}" onsubmit="return confirm('¿Seguro que quieres borrar esta conversación?');">
+                            <form method="post" action="{% url 'chatia:conversation_delete' conversation.id %}" onsubmit="return confirm('¿Seguro que quieres borrar este chat?');">
                                 {% csrf_token %}
                                 <button class="btn btn-sm btn-outline-danger w-100" type="submit">Borrar</button>
                             </form>
@@ -89,7 +87,7 @@
                 </div>
             </div>
             {% empty %}
-            <div class="list-group-item">No tienes conversaciones archivadas.</div>
+            <div class="list-group-item">No tienes chats archivados.</div>
             {% endfor %}
         </div>
     </div>

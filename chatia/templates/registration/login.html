@@ -1,5 +1,7 @@
 {% extends 'chatia/base.html' %}
 
+<!-- Página de inicio de sesión: reutiliza el estilo base y renderiza el formulario de autenticación. -->
+
 {% block title %}Entrar | ChatIA{% endblock %}
 
 {% block content %}
@@ -14,8 +16,8 @@
         {{ form.as_p }}
         <button class="btn btn-primary" type="submit">Entrar</button>
     </form>
-    <!-- Nota para entorno de practicas -->
-    <p class="note">Crea usuarios desde Admin Site para las pruebas.</p>
+    <!-- Enlace al registro público para no depender del admin site -->
+    <p class="note mt-3">¿No tienes cuenta? <a href="{% url 'register' %}">Crear una cuenta</a></p>
     </div>
 </section>
 {% endblock %}

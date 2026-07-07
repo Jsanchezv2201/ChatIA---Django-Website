@@ -6,6 +6,7 @@
     --bg-2: #eaf0f8;
     --surface: rgba(255, 255, 255, 0.88);
     --surface-hi: rgba(79, 143, 255, 0.07);
+    --border-width: 1.15px;
     --line: rgba(33, 47, 69, 0.08);
     --line-strong: rgba(33, 47, 69, 0.15);
     --text: #132238;
@@ -29,6 +30,7 @@ body.dark-mode {
     --surface-hi: rgba(96, 165, 250, 0.12);
     --surface-strong: rgba(15, 23, 42, 0.96);
     --surface-soft: rgba(30, 41, 59, 0.72);
+    --border-width: 1.15px;
     --line: rgba(148, 163, 184, 0.16);
     --line-strong: rgba(148, 163, 184, 0.28);
     --text: #e5eefb;
@@ -60,12 +62,6 @@ body.dark-mode {
         radial-gradient(ellipse 80% 50% at 10% -10%, rgba(96,165,250,0.18) 0%, transparent 60%),
         radial-gradient(ellipse 60% 40% at 95% 5%, rgba(168,85,247,0.12) 0%, transparent 55%),
         radial-gradient(ellipse 50% 60% at 80% 100%, rgba(59,130,246,0.08) 0%, transparent 60%);
-}
-
-/* En chats y perfil no queremos scroll de pagina, solo el de los paneles internos. */
-body.no-page-scroll {
-    height: 100dvh;
-    overflow: hidden;
 }
 
 /* Ruido visual muy suave para que el fondo no quede plano. */

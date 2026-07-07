@@ -8,7 +8,7 @@
     align-items: center;
     gap: 1rem;
     padding: 0.85rem 1.5rem;
-    border-bottom: 1px solid var(--line);
+    border-bottom: var(--border-width) solid var(--line);
     backdrop-filter: blur(24px) saturate(1.4);
     -webkit-backdrop-filter: blur(24px) saturate(1.4);
     background: color-mix(in srgb, var(--surface) 82%, transparent);
@@ -48,7 +48,7 @@
     align-items: center;
     padding: 0.38rem 0.72rem;
     border-radius: 999px;
-    border: 1px solid var(--line);
+    border: var(--border-width) solid var(--line);
     background: var(--surface-hi);
     color: var(--brand);
     font-size: 0.84rem;
@@ -62,6 +62,60 @@ nav {
     gap: 0.4rem;
 }
 
+/* Boton hamburguesa para pantallas estrechas. */
+.menu-toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0.22rem;
+    width: 2.95rem;
+    height: 2.95rem;
+    padding: 0.65rem;
+    border-radius: 1rem;
+    border: var(--border-width) solid var(--line);
+    background: linear-gradient(180deg, var(--surface) 0%, var(--surface-hi) 100%);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    cursor: pointer;
+    flex: 0 0 auto;
+    transition: transform var(--transition), background var(--transition), border-color var(--transition), box-shadow var(--transition);
+}
+
+.menu-toggle span {
+    display: block;
+    width: 1.12rem;
+    height: 2px;
+    border-radius: 999px;
+    background: currentColor;
+    transition: transform var(--transition), opacity var(--transition), width var(--transition);
+}
+
+.menu-toggle span:nth-child(2) {
+    width: 0.88rem;
+}
+
+.menu-toggle:hover {
+    transform: translateY(-1px);
+    border-color: var(--line-strong);
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.12);
+}
+
+.menu-toggle:active {
+    transform: translateY(0);
+}
+
+.topbar.menu-open .menu-toggle span:nth-child(1) {
+    transform: translateY(6px) rotate(45deg);
+}
+
+.topbar.menu-open .menu-toggle span:nth-child(2) {
+    opacity: 0;
+}
+
+.topbar.menu-open .menu-toggle span:nth-child(3) {
+    transform: translateY(-6px) rotate(-45deg);
+}
+
 /* Menu principal flexible para caber en escritorio y movil. */
 .site-menu {
     display: flex;
@@ -70,38 +124,45 @@ nav {
     flex-wrap: wrap;
     justify-content: flex-end;
 }
-
-/* Boton de logout con aspecto de pastilla. */
-nav a,
-.logout-form button,
-.theme-toggle {
-    border: 1px solid var(--line);
+.topbar .site-menu > a,
+.topbar .site-menu > .logout-form button,
+.topbar .site-menu > .theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: var(--border-width) solid var(--line);
     color: var(--text-dim);
-    text-decoration: none;
-    background: transparent;
+    text-decoration: none !important;
+    background: var(--surface) !important;
     cursor: pointer;
     font-family: "DM Sans", sans-serif;
     font-size: 0.88rem;
     font-weight: 500;
     padding: 0.44rem 0.82rem;
     border-radius: 999px;
+    box-shadow: 0 1px 0 var(--line), 0 6px 16px rgba(15, 23, 42, 0.04);
     transition: color var(--transition), background var(--transition), border-color var(--transition);
 }
 
+.topbar .site-menu a {
+    line-height: 1;
+}
+
 /* Resaltar la sección activa en la navegación superior. */
-.site-menu a.active {
+.topbar .site-menu a.active {
     color: var(--brand);
-    background: transparent;
-    border-bottom: 2px solid rgba(37,99,235,0.18);
+    background: color-mix(in srgb, var(--brand) 8%, var(--surface));
+    border-color: rgba(37,99,235,0.18);
 }
 
 /* Estado al pasar el raton por los elementos de navegacion. */
-nav a:hover,
-.logout-form button:hover,
-.theme-toggle:hover {
+.topbar .site-menu a:hover,
+.topbar .site-menu .logout-form button:hover,
+.topbar .site-menu .theme-toggle:hover {
     color: var(--text);
     border-color: var(--line-strong);
     background: var(--surface-hi);
+    transform: translateY(-1px);
 }
 
 .theme-toggle {
@@ -114,18 +175,15 @@ nav a:hover,
     background: var(--surface-hi);
 }
 
-/* Pie comun con metrica global del sitio. Fijo en el bottom para siempre estar visible. */
+/* Pie comun con metrica global del sitio. Va al final de la pagina, no fijado en pantalla. */
 .site-footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    position: static;
     z-index: 35;
-    margin: 0;
+    margin: 0 0 1.2rem;
     padding: 0.8rem 1.2rem;
     background: color-mix(in srgb, var(--surface) 95%, transparent);
     backdrop-filter: blur(12px);
-    border-top: 1px solid var(--line);
+    border-top: var(--border-width) solid var(--line);
 }
 
 body.dark-mode .topbar,
@@ -148,7 +206,7 @@ body.dark-mode .site-footer {
 }
 
 .metric-card {
-    border: 1px solid var(--line);
+    border: var(--border-width) solid var(--line);
     border-radius: var(--r-lg);
     background: var(--surface);
     padding: 0.95rem 1rem;
@@ -184,13 +242,120 @@ body.dark-mode .metric-card:nth-child(odd) {
     z-index: 1;
     max-width: 1280px;
     margin: 1.8rem auto;
-    padding: 0 1.2rem 8rem;
-    /* Espacio adicional para el footer fijo en el bottom */
+    padding: 0 1.2rem 1.2rem;
 }
 
 @media (max-width: 980px) {
+    .topbar {
+        flex-wrap: nowrap;
+        align-items: center;
+    }
+
+    .topbar-branding {
+        justify-content: flex-start;
+        flex-wrap: nowrap;
+        min-width: 0;
+        flex: 1 1 auto;
+        gap: 0.6rem;
+    }
+
+    .menu-toggle {
+        display: inline-flex;
+        margin-left: auto;
+    }
+
+    .site-menu {
+        position: fixed;
+        top: 4.7rem;
+        right: 0.85rem;
+        width: min(19rem, calc(100vw - 1.3rem));
+        max-height: calc(100vh - 6rem);
+        display: flex;
+        justify-content: flex-start;
+        align-items: stretch;
+        flex-direction: column;
+        gap: 0.55rem;
+        margin-top: 0;
+        padding: 0.95rem;
+        border: var(--border-width) solid var(--line);
+        border-radius: 1.15rem;
+        background: color-mix(in srgb, var(--surface) 96%, transparent);
+        box-shadow: 0 24px 50px rgba(15, 23, 42, 0.18);
+        overflow-y: auto;
+        z-index: 55;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transform: translateY(-6px) translateX(10px) scale(0.98);
+        transition: opacity var(--transition), transform var(--transition), visibility var(--transition), box-shadow var(--transition);
+    }
+
+    .site-menu.is-open {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        transform: translateY(0) translateX(0) scale(1);
+    }
+
+    .site-menu > a,
+    .site-menu > .logout-form,
+    .site-menu > .theme-toggle {
+        width: 100%;
+    }
+
+    .site-menu > .logout-form button,
+    .site-menu > a,
+    .site-menu > .theme-toggle {
+        width: 100%;
+        justify-content: flex-start;
+        padding: 0.72rem 0.9rem;
+        border-radius: 0.95rem;
+    }
+
+    .site-menu > .logout-form {
+        display: flex;
+    }
+
+    .site-menu > .theme-toggle {
+        display: inline-flex;
+    }
+
+    .site-menu::before {
+        content: '';
+        position: absolute;
+        top: -0.45rem;
+        right: 1.1rem;
+        width: 0.9rem;
+        height: 0.9rem;
+        background: inherit;
+        border-left: var(--border-width) solid var(--line);
+        border-top: var(--border-width) solid var(--line);
+        transform: rotate(45deg);
+        box-shadow: -2px -2px 10px rgba(15, 23, 42, 0.04);
+    }
+
     .footer-metrics {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        gap: 0.65rem;
+        padding-bottom: 0.15rem;
+        scroll-snap-type: x proximity;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .footer-metrics::-webkit-scrollbar {
+        height: 4px;
+    }
+
+    .footer-metrics::-webkit-scrollbar-thumb {
+        background: var(--line-strong);
+        border-radius: 4px;
+    }
+
+    .metric-card {
+        flex: 0 0 11.5rem;
+        scroll-snap-align: start;
     }
 }
 
@@ -199,17 +364,39 @@ body.dark-mode .metric-card:nth-child(odd) {
         align-items: flex-start;
     }
 
+    .topbar-branding {
+        gap: 0.5rem;
+    }
+
     .site-menu {
         justify-content: flex-start;
     }
 
     .footer-metrics {
-        grid-template-columns: 1fr;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.5rem;
     }
-    
-    .shell {
-        padding-bottom: 9.5rem;
-        /* Más espacio en móvil porque el footer ocupa más */
+
+    .site-footer {
+        margin: 0 0 0.75rem;
+        padding: 0.65rem 0.8rem;
+    }
+
+    .metric-card {
+        flex-basis: auto;
+        min-width: 0;
+        padding: 0.68rem 0.74rem;
+    }
+
+    .metric-label {
+        font-size: 0.68rem;
+        letter-spacing: 0.08em;
+        margin-bottom: 0.25rem;
+    }
+
+    .metric-card strong {
+        font-size: 0.92rem;
     }
 }
 

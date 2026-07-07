@@ -1,5 +1,7 @@
 {% extends 'chatia/base.html' %}
 
+<!-- Página de inicio: muestra bienvenida, accesos rápidos y conversaciones recientes. -->
+
 {% block title %}Inicio | ChatIA{% endblock %}
 
 {% block content %}
@@ -13,7 +15,7 @@
                     <a class="btn btn-primary" href="{% url 'chatia:chats' %}">Ir a chats</a>
                     <form method="post" action="{% url 'chatia:conversation_create' %}">
                         {% csrf_token %}
-                        <button class="btn btn-outline-primary" type="submit">Nueva conversación</button>
+                        <button class="btn btn-outline-primary" type="submit">Nuevo chat</button>
                     </form>
                 </div>
             </div>
@@ -23,7 +25,7 @@
     <div class="col-12 col-lg-6 mx-auto align-self-start">
         <div class="auth-card card">
             <div class="card-body p-2 p-md-3">
-                <h2 class="h5 mb-4">Conversaciones recientes</h2>
+                <h2 class="h5 mb-4">Chats recientes</h2>
                 <div class="list-group list-group-flush mt-3">
                     {% for conversation in recent_conversations %}
                     <a class="list-group-item list-group-item-action py-1 px-0" href="{% url 'chatia:conversation_detail' conversation.id %}">
@@ -31,7 +33,7 @@
                         <div class="note small">Actualizada el {{ conversation.updated_at|date:'d/m/Y H:i' }}</div>
                     </a>
                     {% empty %}
-                    <div class="list-group-item">Todavía no tienes conversaciones.</div>
+                    <div class="list-group-item">Todavía no tienes chats.</div>
                     {% endfor %}
                 </div>
             </div>

@@ -1,14 +1,34 @@
 {% extends 'chatia/base.html' %}
 
-{% block title %}Conversación | ChatIA{% endblock %}
+<!-- Vista principal del chat: muestra mensajes, acciones del chat y el formulario de envío. -->
+
+{% block title %}Chat | ChatIA{% endblock %}
 
 {% block content %}
 <section class="layout">
+    <div class="sidebar-rail">
+        <button id="sidebar-toggle-closed" type="button" class="btn btn-icon sidebar-toggle" aria-label="Mostrar chats" title="Mostrar chats">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="4" y1="6" x2="20" y2="6"/>
+                <line x1="4" y1="12" x2="20" y2="12"/>
+                <line x1="4" y1="18" x2="20" y2="18"/>
+            </svg>
+        </button>
+    </div>
     <aside class="sidebar">
-        <h2>Conversaciones</h2>
-        <form method="post" action="{% url 'chatia:conversation_create' %}">
+        <div class="sidebar-header">
+            <h2>Chats</h2>
+            <button id="sidebar-toggle-open" type="button" class="btn btn-icon sidebar-toggle" aria-label="Ocultar chats" title="Ocultar chats">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="6" x2="21" y2="6"/>
+                    <line x1="3" y1="12" x2="21" y2="12"/>
+                    <line x1="3" y1="18" x2="21" y2="18"/>
+                </svg>
+            </button>
+        </div>
+        <form class="sidebar-action" method="post" action="{% url 'chatia:conversation_create' %}">
             {% csrf_token %}
-            <button class="primary" type="submit">+ Nueva conversacion</button>
+            <button class="primary" type="submit">+ Nuevo chat</button>
         </form>
         <ul>
             {% for item in conversations %}
@@ -18,34 +38,36 @@
                 </a>
             </li>
             {% empty %}
-            <li>No hay conversaciones aun.</li>
+            <li>No hay chats aun.</li>
             {% endfor %}
         </ul>
     </aside>
 
     <section class="chat-panel">
         <header>
-            <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
-                <div>
-                    {% if conversation.is_archived %}
-                    <span class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle">Archivada</span>
-                    {% endif %}
-                    <div class="chat-model-tag mt-2 d-flex align-items-center gap-2">
-                        <span class="model-label">Modelo:</span>
-                        <select id="conversation-llm-select" class="form-select form-select-sm" style="width:auto;" aria-label="Seleccionar modelo de la conversación" data-url="{% url 'chatia:conversation_set_model' conversation.id %}">
+            <div class="chat-header-row d-flex flex-wrap justify-content-between align-items-start gap-3">
+                <div class="chat-header-main d-flex flex-column gap-2">
+                    <div>
+                        {% if conversation.is_archived %}
+                        <span class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle">Archivada</span>
+                        {% endif %}
+                        <div class="chat-model-tag mt-2 d-flex align-items-center gap-2">
+                            <span class="model-label">Modelo:</span>
+                        <select id="conversation-llm-select" class="form-select form-select-sm" style="width:auto;" aria-label="Seleccionar modelo del chat" data-url="{% url 'chatia:conversation_set_model' conversation.id %}">
                             <option value="">(Usar preferencia de usuario)</option>
                             {% for model in llm_model_options %}
                             <option value="{{ model.value }}" {% if conversation_llm_model == model.value %}selected{% endif %}>{{ model.label }}</option>
                             {% endfor %}
                         </select>
                     </div>
+                    </div>
                 </div>
                 <div class="dropdown conversation-menu">
-                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" aria-label="Abrir acciones de conversación">
+                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" aria-label="Abrir acciones del chat">
                         ⋮
                     </button>
                     <div class="dropdown-menu dropdown-menu-end p-3 shadow-lg">
-                        <a class="dropdown-item rounded-2 mb-2" href="{% url 'chatia:conversation_export_markdown' conversation.id %}">Exportar conversación (.md)</a>
+                        <a class="dropdown-item rounded-2 mb-2" href="{% url 'chatia:conversation_export_markdown' conversation.id %}">Exportar chat (.md)</a>
                         <div class="dropdown-divider"></div>
                         <form method="post" action="{% url 'chatia:conversation_rename' conversation.id %}" class="mb-3">
                             {% csrf_token %}
@@ -56,13 +78,13 @@
                         <form method="post" action="{% url 'chatia:conversation_toggle_archive' conversation.id %}" class="mb-2">
                             {% csrf_token %}
                             <button class="dropdown-item rounded-2" type="submit">
-                                {% if conversation.is_archived %}Desarchivar conversación{% else %}Archivar conversación{% endif %}
+                                {% if conversation.is_archived %}Desarchivar chat{% else %}Archivar chat{% endif %}
                             </button>
                         </form>
                         <div class="dropdown-divider"></div>
-                        <form method="post" action="{% url 'chatia:conversation_delete' conversation.id %}" onsubmit="return confirm('¿Seguro que quieres borrar esta conversación?');">
+                        <form method="post" action="{% url 'chatia:conversation_delete' conversation.id %}" onsubmit="return confirm('¿Seguro que quieres borrar este chat?');">
                             {% csrf_token %}
-                            <button class="dropdown-item text-danger rounded-2" type="submit">Borrar conversación</button>
+                            <button class="dropdown-item text-danger rounded-2" type="submit">Borrar chat</button>
                         </form>
                     </div>
                 </div>
@@ -80,17 +102,23 @@
         >
             {% csrf_token %}
             {{ form.prompt }}
-            <button class="primary" type="submit">Enviar</button>
+            <button class="primary send-button" type="submit" aria-label="Enviar mensaje" title="Enviar mensaje">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                    <path d="M12 19V5"></path>
+                    <path d="M5 12l7-7 7 7"></path>
+                </svg>
+            </button>
         </form>
 
         <div class="composer-meta">
             <div id="loading" class="loading-indicator" aria-live="polite">
                 <div class="spinner"></div>
-                <p>Generando respuesta<span class="dots">...</span></p>
             </div>
         </div>
     </section>
 </section>
+
+{% block footer %}{% endblock %}
 
 <script>
     (function () {
@@ -181,8 +209,10 @@
             loading.classList.add('visible');
             if (submitButton) {
                 submitButton.disabled = true;
-                submitButton.dataset.originalText = submitButton.textContent;
-                submitButton.textContent = 'Enviando...';
+            }
+
+            if (textarea) {
+                textarea.value = '';
             }
 
             var userBubble = createBubble('user', 'Tú', prompt);
@@ -192,6 +222,7 @@
             scrollMessagesToBottom(true);
 
             var formData = new FormData(form);
+            formData.set('prompt', prompt);
             var decoder = new TextDecoder('utf-8');
             var buffer = '';
 
@@ -273,12 +304,10 @@
                 assistantBubble.article.classList.remove('streaming');
                 scrollMessagesToBottom(true);
             } finally {
-                if (textarea) textarea.value = '';
                 form.classList.remove('is-loading');
                 loading.classList.remove('visible');
                 if (submitButton) {
                     submitButton.disabled = false;
-                    submitButton.textContent = submitButton.dataset.originalText || 'Enviar';
                 }
             }
         }
@@ -327,6 +356,51 @@
             var form = document.getElementById('chat-composer');
             if (!form) return;
 
+            var layout = document.querySelector('.layout');
+            var sidebar = document.querySelector('.sidebar');
+            var sidebarToggleClosed = document.getElementById('sidebar-toggle-closed');
+            var sidebarToggleOpen = document.getElementById('sidebar-toggle-open');
+
+            function setSidebarCollapsed(collapsed) {
+                if (!layout) {
+                    return;
+                }
+                layout.classList.toggle('sidebar-collapsed', collapsed);
+                if (sidebar) {
+                    sidebar.setAttribute('aria-hidden', collapsed ? 'true' : 'false');
+                }
+                if (sidebarToggleClosed) {
+                    sidebarToggleClosed.hidden = !collapsed;
+                }
+                if (sidebarToggleOpen) {
+                    sidebarToggleOpen.hidden = collapsed;
+                }
+            }
+
+            function bindToggle(button, nextState) {
+                if (!button) return;
+                button.addEventListener('click', function () {
+                    setSidebarCollapsed(nextState);
+                    try {
+                        localStorage.setItem('chatia-sidebar-collapsed', nextState ? '1' : '0');
+                    } catch (error) {
+                        // Sin persistencia si localStorage no está disponible.
+                    }
+                });
+            }
+
+            if (layout) {
+                var storedSidebarState = null;
+                try {
+                    storedSidebarState = localStorage.getItem('chatia-sidebar-collapsed');
+                } catch (error) {
+                    storedSidebarState = null;
+                }
+                setSidebarCollapsed(storedSidebarState === '1');
+                bindToggle(sidebarToggleClosed, false);
+                bindToggle(sidebarToggleOpen, true);
+            }
+
             form.addEventListener('submit', function (event) {
                 event.preventDefault();
                 streamReply(form);
@@ -339,7 +413,7 @@
                 submitFeedback(feedbackForm);
             });
 
-            // Handler para cambiar el modelo por conversación
+            // Handler para cambiar el modelo por chat
             var modelSelect = document.getElementById('conversation-llm-select');
             if (modelSelect) {
                 modelSelect.addEventListener('change', async function () {
@@ -354,7 +428,7 @@
                         if (!resp.ok || !payload.ok) throw new Error(payload.error || 'Error al guardar modelo');
                         // label removed from UI; no update required here
                     } catch (e) {
-                        console.error('No se pudo guardar el modelo de conversación', e);
+                        console.error('No se pudo guardar el modelo del chat', e);
                         alert('No se pudo guardar el modelo seleccionado.');
                     }
                 });

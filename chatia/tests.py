@@ -329,11 +329,49 @@ class ConfigurationTests(TestCase):
 
 
 class AuthTests(TestCase):
+	def setUp(self):
+		"""Crear un usuario base para probar login y registro."""
+		self.client = Client()
+		self.user = User.objects.create_user(
+			username='testuser',
+			email='test@example.com',
+			password='testpass123'
+		)
+
 	def test_failed_login_returns_401(self):
 		"""Si las credenciales son inválidas, el login debe devolver 401."""
 		login_url = reverse('login')
 		resp = self.client.post(login_url, {'username': 'nope', 'password': 'wrong'})
 		self.assertEqual(resp.status_code, 401)
+
+	def test_register_page_loads(self):
+		"""La página pública de registro debe ser accesible sin autenticación."""
+		response = self.client.get(reverse('register'))
+		self.assertEqual(response.status_code, 200)
+		self.assertTemplateUsed(response, 'registration/register.html')
+		self.assertNotContains(response, 'too similar to your other personal information')
+		self.assertNotContains(response, 'must contain at least 8 characters')
+
+	def test_register_creates_user_and_logs_in(self):
+		"""Registrar una cuenta crea el usuario y deja la sesión iniciada."""
+		response = self.client.post(
+			reverse('register'),
+			{
+				'username': 'newuser',
+				'password1': 'StrongPass123!',
+				'password2': 'StrongPass123!',
+			},
+		)
+		self.assertEqual(response.status_code, 302)
+		self.assertTrue(User.objects.filter(username='newuser').exists())
+		self.assertEqual(response.url, reverse('chatia:home'))
+
+	def test_register_redirects_authenticated_user(self):
+		"""Si el usuario ya ha iniciado sesión, el registro no tiene sentido y vuelve a home."""
+		self.client.login(username='testuser', password='testpass123')
+		response = self.client.get(reverse('register'))
+		self.assertEqual(response.status_code, 302)
+		self.assertEqual(response.url, reverse('chatia:home'))
 
 
 class ApiConversationTests(TestCase):
@@ -374,6 +412,13 @@ class TemplateRenderingTests(TestCase):
 		self.assertEqual(response.status_code, 200)
 		self.assertContains(response, 'ChatIA')
 
+	def test_unknown_url_uses_custom_404_page(self):
+		"""Una ruta inventada debe mostrar la 404 personalizada en lugar de la página técnica de Django."""
+		response = self.client.get('/ruta-que-no-existe/')
+		self.assertEqual(response.status_code, 404)
+		self.assertTemplateUsed(response, '404.html')
+		self.assertContains(response, 'No hemos encontrado esa página', status_code=404)
+
 	def test_info_page_loads(self):
 		"""Test: página de información/ayuda se carga correctamente."""
 		response = self.client.get(reverse('chatia:info'))
@@ -384,7 +429,7 @@ class TemplateRenderingTests(TestCase):
 	def test_markdown_is_rendered_in_message_bubble(self):
 		"""Test: el contenido de los mensajes se renderiza como Markdown."""
 		conversation = Conversation.objects.create(user=self.user, title='Markdown Test')
-		Message.objects.create(
+		message = Message.objects.create(
 			conversation=conversation,
 			role=Message.ROLE_ASSISTANT,
 			content='Hola **mundo**',
@@ -392,6 +437,7 @@ class TemplateRenderingTests(TestCase):
 		response = self.client.get(reverse('chatia:conversation_detail', args=[conversation.id]))
 		self.assertEqual(response.status_code, 200)
 		self.assertContains(response, '<strong>mundo</strong>', html=False)
+		self.assertNotContains(response, f'{message.id} - {message.role}', html=False)
 
 	def test_conversation_export_markdown_downloads_file(self):
 		"""Test: la exportación devuelve un fichero Markdown descargable."""

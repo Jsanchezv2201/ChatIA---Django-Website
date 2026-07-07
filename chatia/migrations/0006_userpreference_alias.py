@@ -1,5 +1,8 @@
 from django.db import migrations, models
 
+# Esta migración añade el alias público opcional a las preferencias del usuario.
+# Se usa solo para mostrar un nombre alternativo en la interfaz, no para autenticar.
+
 
 class Migration(migrations.Migration):
 

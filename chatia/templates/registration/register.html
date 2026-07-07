@@ -1,0 +1,51 @@
+{% extends 'chatia/base.html' %}
+
+<!-- Página de registro: permite crear usuarios nuevos desde la web sin usar el admin. -->
+
+{% block title %}Registrarse | ChatIA{% endblock %}
+
+{% block content %}
+<section class="auth-card card">
+    <div class="card-body">
+        <h1 class="h3">Crear cuenta</h1>
+        <p class="note">Introduce un usuario y una contraseña para entrar en ChatIA.</p>
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger" role="alert">
+            {{ form.non_field_errors }}
+        </div>
+        {% endif %}
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="mb-3">
+                {{ form.username.label_tag }}
+                {{ form.username }}
+                {% for error in form.username.errors %}
+                <div class="text-danger small mt-1">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.password1.label_tag }}
+                {{ form.password1 }}
+                {% for error in form.password1.errors %}
+                <div class="text-danger small mt-1">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.password2.label_tag }}
+                {{ form.password2 }}
+                {% for error in form.password2.errors %}
+                <div class="text-danger small mt-1">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <button class="btn btn-primary" type="submit">Registrarme</button>
+        </form>
+
+        <p class="note mt-3">¿Ya tienes cuenta? <a href="{% url 'login' %}">Iniciar sesión</a></p>
+    </div>
+</section>
+{% endblock %}

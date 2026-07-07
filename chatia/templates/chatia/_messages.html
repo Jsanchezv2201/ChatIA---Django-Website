@@ -1,10 +1,11 @@
+<!-- Parcial de mensajes: pinta el historial del chat, errores y botones de feedback. -->
 {% load markdown_filters %}
 <div id="messages" class="messages-box">
     {% if error %}
     <p class="error">{{ error }}</p>
     {% endif %}
 
-    {% for message in messages %}
+    {% for message in conversation_messages %}
     <article class="bubble {{ message.role }}" data-message-id="{{ message.id }}" data-feedback-value="{{ message.user_feedback|default:'' }}">
         <h4>{% if message.role == 'user' %}Tú{% elif message.role == 'assistant' %}ChatIA{% else %}Sistema{% endif %}</h4>
         <div class="message-content">{{ message.content|render_markdown }}</div>
@@ -27,6 +28,6 @@
         </div>
     </article>
     {% empty %}
-    <p>Empieza la conversacion enviando tu primera pregunta.</p>
+    <p>Empieza el chat enviando tu primera pregunta.</p>
     {% endfor %}
 </div>

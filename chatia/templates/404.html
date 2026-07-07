@@ -1,0 +1,21 @@
+{% extends 'chatia/base.html' %}
+
+<!-- Página 404 personalizada: aparece cuando la ruta no existe o se escribe una URL inventada. -->
+
+{% block title %}No encontrado | ChatIA{% endblock %}
+
+{% block content %}
+<section class="auth-card card">
+    <div class="card-body text-center">
+        <p class="note text-uppercase mb-2">Error 404</p>
+        <h1 class="h3">No hemos encontrado esa página</h1>
+        <p class="mb-4">
+            La dirección <strong>{{ unknown_path }}</strong> no existe en ChatIA.
+        </p>
+        <div class="d-flex flex-wrap justify-content-center gap-2">
+            <a class="btn btn-primary" href="{% url 'chatia:home' %}">Volver al inicio</a>
+            <a class="btn btn-outline-primary" href="{% url 'chatia:chats' %}">Ir a chats</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

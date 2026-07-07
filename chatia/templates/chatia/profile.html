@@ -1,5 +1,7 @@
 {% extends 'chatia/base.html' %}
 
+<!-- Página de perfil: muestra métricas del usuario y sus últimas conversaciones. -->
+
 {% block title %}Perfil | ChatIA{% endblock %}
 
 {% block content %}
@@ -17,7 +19,7 @@
             </div>
             <div class="col-md-6">
                 <div class="metric-card h-100">
-                    <span class="metric-label">Conversaciones propias</span>
+                    <span class="metric-label">Chats propios</span>
                     <strong>{{ site_metrics.user_conversations }}</strong>
                 </div>
             </div>
@@ -35,7 +37,7 @@
             </div>
         </div>
 
-        <h2 class="h5 mt-4 mb-3">Últimas conversaciones</h2>
+        <h2 class="h5 mt-4 mb-3">Últimos chats</h2>
         {% if recent_conversations %}
             <div class="list-group list-group-sm">
                 {% for conv in recent_conversations %}
@@ -49,7 +51,7 @@
                 {% endfor %}
             </div>
         {% else %}
-            <p class="text-muted">No hay conversaciones aún. <a href="{% url 'chatia:conversation_create' %}">Crea una</a>.</p>
+            <p class="text-muted">No hay chats aún. <a href="{% url 'chatia:conversation_create' %}">Crea uno</a>.</p>
         {% endif %}
 
         {# Eliminado: bloque redundante de "Última conversación" — las últimas ya aparecen arriba #}

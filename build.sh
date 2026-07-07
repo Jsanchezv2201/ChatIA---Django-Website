@@ -12,5 +12,6 @@ pip install -r requirements.txt
 # Run Django migrations using the virtual environment's python
 python manage.py migrate
 
-# Create the output directory to satisfy the Vercel static-build process
+# Create the output directory and a placeholder file to satisfy the Vercel static-build process
 mkdir staticfiles_build
+touch staticfiles_build/.placeholder

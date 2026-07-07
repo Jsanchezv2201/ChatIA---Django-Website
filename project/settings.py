@@ -59,8 +59,7 @@ DEBUG = env_first('DJANGO_DEBUG', default='True') == 'True'
 
 # Hosts permitidos para acceder a la aplicación.
 # Evita que Django responda a dominios no autorizados. En producción se ajusta con una lista separada por comas.
-# DJANGO_ALLOWED_HOSTS=yourusername.pythonanywhere.com,example.com
-ALLOWED_HOSTS = [h.strip() for h in env_first('DJANGO_ALLOWED_HOSTS', default='juansv22.pythonanywhere.com,localhost,127.0.0.1,[::1]').split(',') if h.strip()]
+ALLOWED_HOSTS = [h.strip() for h in env_first('DJANGO_ALLOWED_HOSTS', default='juansv22.pythonanywhere.com,chatia-lime.vercel.app,localhost,127.0.0.1,[::1]').split(',') if h.strip()]
 
 # Orígenes de confianza para CSRF.
 # Django usa esto para permitir peticiones POST seguras desde dominios concretos.
